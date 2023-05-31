@@ -8,7 +8,8 @@
     },
     "files": [
         "README.md",
-        "sen55.ts"
+        "sen55.ts",
+        "sen55.cpp"
     ],
     "testFiles": [
         "test.ts"
