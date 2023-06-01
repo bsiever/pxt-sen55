@@ -9,7 +9,9 @@
     "files": [
         "README.md",
         "sen55.ts",
-        "sen55.cpp"
+        "sen55.cpp",
+        "shims.d.ts",
+        "enums.d.ts"
     ],
     "testFiles": [
         "test.ts"
