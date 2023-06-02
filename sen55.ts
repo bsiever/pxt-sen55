@@ -105,7 +105,7 @@ namespace Sen55 {
     }
 
     //% block="NOx index"
-    //% shim=sen55:NOx
+    //% shim=sen55::NOx
     //% weight=500
     export function NOx(): number {
         return 0;

@@ -199,51 +199,51 @@ namespace sen55 {
 
     // Get PM1.0 value
     //%
-    double pm10() {
+    float pm10() {
         readIfStale();
         return _pm1 == 0xFFFF ? 65535 : _pm1/10.0;
     }
 
     // Get PM2.5 value
     //%
-    double pm25() {
+    float pm25() {
         readIfStale();
         return _pm25 == 0xFFFF ? 65535 : _pm25/10.0;
     }
 
     // Get PM4.0 value
     //%
-    double pm40() {
+    float pm40() {
         readIfStale();
         return _pm4 == 0xFFFF ? 65535 : _pm4/10.0;
     }
     // Get PM10.0 value
     //%
-    double pm100() {
+    float pm100() {
         readIfStale();
         return _pm10 == 0xFFFF ? 65535 : _pm10/10.0;
     }
 
     //% 
-    double temperature() {
+    float temperature() {
         readIfStale();
         return _temp == (int16_t)0xFFFF ? 65535 : _temp/200.0;
     }
 
     //% 
-    double humidity() {
+    float humidity() {
         readIfStale();
         return _rh == (int16_t)0xFFFF ? 65535 : _rh/100.0;
     }
 
     //%
-    double VOC() {
+    float VOC() {
         readIfStale();
         return _voci == (int16_t)0xFFFF ? 65535 : _voci/10.0;
     }
 
     //%
-    double NOx() {
+    float NOx() {
         readIfStale();
         return _noxi == (int16_t)0xFFFF ? 65535 : _noxi/10.0;
     }
