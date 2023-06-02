@@ -8,7 +8,7 @@ enum Sen55SensorMode {
 }
 
 //% color=#cf64ed
-//% icon="\uf72e"
+//% icon="\uf0c2"
 //% block="SEN55"
 //% groups="['Advanced']"
 namespace Sen55 {
@@ -89,7 +89,7 @@ namespace Sen55 {
         0;
     }
 
-    // block="particle mass 1.0 µg/m³"
+    // block="particle mass 1.0 ug/m3"
     //% shim=sen55::pm10
     export function pm10(): number {
         return 0;
@@ -160,7 +160,7 @@ namespace Sen55 {
     /**
      * Get all sensor values in "non-error" context.  
      */
-    //% block="on valid sensor values $pm10, %pm25, %pm40, %pm100, %rh, %temp, %VOC, %NOx" advanced=true
+    //% block="on valid sensor values %pm10, %pm25, %pm40, %pm100, %rh, %temp, %VOC, %NOx" advanced=true
     //% draggableParameters=variable
     //% handlerStatement=1
     //% weight=100
