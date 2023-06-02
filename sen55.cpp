@@ -14,42 +14,59 @@
 
 using namespace pxt;
 
+
+enum SEN55RunMode
+{
+    Idle,
+    Measurement,
+    MeasurementGasOnly
+};
 namespace sen55 {
+
+
     // Sensirion SEN55 address is 0x69:
     const int address = 0x69 << 1;
-    
+    const int staleDataTime = 1050;   // ms until data is considered stale
+
     // State variables
-
-    static bool initialized = false; 
     static Action errorHandler = NULL;
+    static uint16_t _pm1 ;
+    static uint16_t _pm25;
+    static uint16_t _pm4 ;
+    static uint16_t _pm10;
+    static int16_t  _rh  ;
+    static int16_t  _temp;
+    static int16_t  _voci;
+    static int16_t  _noxi;
+    static unsigned long _lastReadTime;
+    static SEN55RunMode mode = Idle; 
+    static String _lastError = PSTR("");
 
-    //% 
-    void setErrorHandler(Action a) {
-       // Release any prior error handler
-       if(errorHandler)
-         pxt::decr(errorHandler);
-        errorHandler = a; 
-        if(errorHandler)    
-            pxt::incr(errorHandler);
+
+    static void invalidateValues() {
+        _pm1  = 0xFFFF;
+        _pm25 = 0xFFFF;
+        _pm4  = 0xFFFF;
+        _pm10 = 0xFFFF;
+        _rh   = 0xFFFF;
+        _temp = 0xFFFF;
+        _voci = 0xFFFF;
+        _noxi = 0xFFFF;
+        _lastReadTime = 0;  // No valid read has occurred
     }
+
+    // Forward Decls
+    int deviceStatus();
 
     /*
      * Helper method to send an actual error code to the registered handler.
      * It will scall the handler
      */
-    void sen55_error() {
+    static void sen55_error(const char *error="") {
+        _lastError = PSTR(error);
         if(errorHandler) {
             pxt::runAction0(errorHandler);            
         }
-    }
-
-
-
-    void init() {
-        if (initialized) return;
-        initialized = true;
-
-        // Other stuff 
     }
 
     // CRC calculation  
@@ -74,7 +91,7 @@ namespace sen55 {
     * Check all the CRCs of a buffer (buffer length must be multiple of 3)
     * returns true if all CRCs are correct, false otherwise.
     */
-    bool checkBuffer(uint8_t *buffer, uint8_t length) {
+    static bool checkBuffer(uint8_t *buffer, uint8_t length) {
         for (uint8_t i = 0; i < length; i += 3)
         {
             uint8_t crc = CalcCrc(buffer+i);
@@ -86,23 +103,22 @@ namespace sen55 {
     }
 
 
-
     // Send a command to the SEN55 and wait for the specified delay
-    void sendCommand(uint16_t command, uint16_t delay) {
-        init();
-
+    static bool sendCommand(uint16_t command, uint16_t delay) {
         command = ((command & 0xFF00) >> 8) | ((command & 0x00FF) << 8);
+        uint8_t status; 
 #if MICROBIT_CODAL
-        uBit.i2c.write(address, (uint8_t *)&command, 2);
+        status = uBit.i2c.write(address, (uint8_t *)&command, 2);
 #else
-        uBit.i2c.write(address, (char *)&command, 2);
+        status = uBit.i2c.write(address, (char *)&command, 2);
 #endif
         uBit.sleep(delay);
+        return status == MICROBIT_OK;
     }
 
     // Read data from the SEN55
     // Returns true if successful, false otherwise
-    bool readData(uint8_t *data, uint16_t length) {
+    static bool readData(uint8_t *data, uint16_t length) {
         uint8_t status = 0;
 #if MICROBIT_CODAL
         status = uBit.i2c.read(address, (uint8_t *)data, length);
@@ -112,15 +128,13 @@ namespace sen55 {
         return status == MICROBIT_OK;
     }
 
-
-
     // Both read name and read serial number use the same format
-    String read48ByteString(uint16_t command) {
-        sendCommand(command, 20);
+    static String read48ByteString(uint16_t command) {
+        bool commandStatus = sendCommand(command, 20);
         uint8_t data[48];
         bool readStatus = readData(data, sizeof(data));
-        if(readStatus==false || checkBuffer(data, sizeof(data))==false) {
-            sen55_error();
+        if(commandStatus==false || readStatus==false || checkBuffer(data, sizeof(data))==false) {
+            sen55_error("Read String Error");
             return PSTR("");
         }
         uint16_t loc = 0;
@@ -134,6 +148,107 @@ namespace sen55 {
         return PSTR((char*)data);
     }
 
+    /* 
+     * Read the sensor values and update state variables
+    */
+    static void readValues() {
+        uint32_t deviceErrors = deviceStatus();
+        bool commandStatus = sendCommand(0x03C4, 20);
+        uint8_t data[24];
+        bool readStatus = readData(data, sizeof(data));
+        if(deviceErrors!=0 || mode==Idle || commandStatus==false || readStatus==false || checkBuffer(data, sizeof(data))==false) {
+            invalidateValues();
+            sen55_error("Read Sensor Data Error");
+            return;
+        }
+
+        // Valid read: Update state
+        _lastReadTime = uBit.systemTime();
+        _pm1    = *((uint16_t*)(data+0));
+        _pm25   = *((uint16_t*)(data+3));
+        _pm4    = *((uint16_t*)(data+6));
+        _pm10   = *((uint16_t*)(data+9));
+        _rh     = *((uint16_t*)(data+12));
+        _temp   = *((uint16_t*)(data+15));
+        _voci   = *((uint16_t*)(data+18));
+        _noxi   = *((uint16_t*)(data+21));
+    }
+
+    /* 
+    * Read state if stored values are stale (more than a second old)
+    */
+    static void readIfStale() {
+        if(_lastReadTime==0 || uBit.systemTime() - _lastReadTime > staleDataTime) {
+            readValues();
+        }
+    }
+
+    //************************ MakeCode Blocks ************************
+
+
+    //% 
+    void setErrorHandler(Action a) {
+       // Release any prior error handler
+       if(errorHandler)
+         pxt::decr(errorHandler);
+        errorHandler = a; 
+        if(errorHandler)    
+            pxt::incr(errorHandler);
+    }
+
+
+    // Get PM1.0 value
+    //%
+    double pm10() {
+        readIfStale();
+        return _pm1 == 0xFFFF ? 65535 : _pm1/10.0;
+    }
+
+    // Get PM2.5 value
+    //%
+    double pm25() {
+        readIfStale();
+        return _pm25 == 0xFFFF ? 65535 : _pm25/10.0;
+    }
+
+    // Get PM4.0 value
+    //%
+    double pm40() {
+        readIfStale();
+        return _pm4 == 0xFFFF ? 65535 : _pm4/10.0;
+    }
+    // Get PM10.0 value
+    //%
+    double pm100() {
+        readIfStale();
+        return _pm10 == 0xFFFF ? 65535 : _pm10/10.0;
+    }
+
+    //% 
+    double temperature() {
+        readIfStale();
+        return _temp == (int16_t)0xFFFF ? 65535 : _temp/200.0;
+    }
+
+    //% 
+    double humidity() {
+        readIfStale();
+        return _rh == (int16_t)0xFFFF ? 65535 : _rh/100.0;
+    }
+
+    //%
+    double VOC() {
+        readIfStale();
+        return _voci == (int16_t)0xFFFF ? 65535 : _voci/10.0;
+    }
+
+    //%
+    double NOx() {
+        readIfStale();
+        return _noxi == (int16_t)0xFFFF ? 65535 : _noxi/10.0;
+    }
+
+
     // Get product name:  Returns null on communication failure. 
     //%
     String productName() {
@@ -146,42 +261,113 @@ namespace sen55 {
         return read48ByteString(0xD033);
     }
 
+    // Get firmware:  Returns firmware version number.
+    //%
+    int firmwareVersion() {
+        bool commandStatus =  sendCommand(0xD100, 20);
+        uint8_t data[3];
+        bool readStatus = readData(data, sizeof(data));
+        if(commandStatus==false || readStatus==false || checkBuffer(data, sizeof(data))==false) {
+            sen55_error("Read Firmware Error");
+            return -1;
+        }
+        return data[0];
+    }
+
+
+
     //%
     void _startMeasurements(bool withPM) {
         uBit.serial.printf("Starting measurements with pm %s\n", withPM ? "true" : "false");
-        sendCommand(withPM ? 0x0021 : 0x0037, 50);
+        bool commandStatus = sendCommand(withPM ? 0x0021 : 0x0037, 50);
+        if(commandStatus == false) {
+            sen55_error("Start Measurements Error");
+        } else {
+            mode = withPM ? Measurement : MeasurementGasOnly;
+        }
     }
    
     //%
     void stopMeasurements() {
-        sendCommand(0x0104, 200);
+        bool commandStatus = sendCommand(0x0104, 200);
+        if(commandStatus == false) {
+            sen55_error("Stop Measurements Error");
+        } else {
+            mode = Idle;
+        }
     }
-
 
     //% 
-    void readValues() {
-        sendCommand(0x03C4, 20);
-        uint8_t data[24];
-        bool readStatus = readData(data, sizeof(data));
-        if(readStatus==false || checkBuffer(data, sizeof(data))==false) {
-            sen55_error();
-            uBit.serial.printf("Error reading data\n");
-            for (int i = 0; i < 24;i++) {
-                uBit.serial.printf("0x%x ", data[i]);
-                
-            }
-            uBit.serial.printf("\n");
-            return;
+    void reset() {
+        bool commandStatus = sendCommand(0xD304, 200);
+        if(commandStatus == false) {
+            sen55_error("Reset Error");
+        } else {
+            mode = Idle;
+            invalidateValues();
+            _lastError = PSTR("");
         }
-        uint16_t pm1 = *((uint16_t*)(data+0));
-        uint16_t pm25 = *((uint16_t*)(data+3));
-        uint16_t pm4 = *((uint16_t*)(data+6));
-        uint16_t pm10 = *((uint16_t*)(data+9));
-        int16_t rh = *((uint16_t*)(data+12));
-        int16_t temp = *((uint16_t*)(data+15));
-        int16_t voci = *((uint16_t*)(data+18));
-        int16_t noxi = *((uint16_t*)(data+21));
-        uBit.serial.printf("pm1= %d, pm25= %d, pm4= %d, pm10= %d\n rh= %d, temp= %d, voci= %d, noxi= %d\n", pm1, pm25, pm4, pm10, rh, temp, voci, noxi);
     }
+
+    //% 
+    void clearStatus() {
+        bool commandStatus = sendCommand(0xD210, 20);
+        if(commandStatus == false) {
+            sen55_error("Device Status Clear Error");
+        } 
+    }
+
+    //% 
+    String getLastError() {
+        return _lastError;
+    }
+
+    //% 
+    int deviceStatus() {
+        bool commandStatus = sendCommand(0xD006, 20);
+        uint8_t data[6];
+        bool readStatus = readData(data, sizeof(data));
+        if(commandStatus==false || readStatus==false || checkBuffer(data, sizeof(data))==false) {
+            sen55_error("Read Device Status Error");
+            return -1;
+        }
+        uint32_t status = data[0] << 24 | data[1] << 16 | data[3] << 8 | data[4];
+        if(status!=0) {
+            if(status & 1<<21) {
+                sen55_error("Device Status: Fan Speed Error");
+            }
+            if(status & 1<<19) {
+                sen55_error("Device Status: Fan Cleaning");
+            }
+            if(status & 1<<7) {
+                sen55_error("Device Status: Gas Sensor Error");
+            }
+            if(status & 1<<6) {
+                sen55_error("Device Status: Humidity/Temp Sensor Error");
+            }
+            if(status & 1<<5) {
+                sen55_error("Device Status: Laser Error");
+            }
+            if(status & 1<<4) {
+                sen55_error("Device Status: Fan Error");
+            }
+        }
+        return status;
+    }
+
+    //%
+    void startFanCleaning() {
+        bool commandStatus = sendCommand(0x5607, 20);
+        if(commandStatus == false) {
+            sen55_error("Start Fan Cleaning Error");
+        } 
+    }
+
+
+    /*
+    TODOs:
+        Reset / set fan interval 
+        Advanced blocks for setting and reading values. 
+    */
 }
 
