@@ -23,6 +23,22 @@ enum Sen55ParticleMasses {
 //% icon="\uf0c2"
 //% block="SEN55"
 namespace Sen55 {
+    enum StatusMasks {
+        //% block="fan speed warning"
+        FanSpeedWarning = 1 << 21,
+        //% block="fan is cleaning"
+        FanIsCleaning = 1 << 19,
+        //% block="gas sensor failure"
+        GasFailure = 1 << 7,
+        //% block="temperature and humidity failure"
+        RHTFailure = 1 << 6,
+        //% block="particle mass laser failure"
+        PMLaserFailure = 1 << 5,
+        //% block="fan failure"
+        FanFailure = 1 << 4,
+        
+    }
+
     //% whenUsed
     let errorHandler: Action = null;
     //% whenUsed

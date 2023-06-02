@@ -166,7 +166,6 @@ namespace sen55 {
             sen55_error("Read Sensor Data Error");
             return;
         }
-        uBit.serial.printf("Read Values\r\n");
 
         // Valid read: Update state
         _lastReadTime = uBit.systemTime();
@@ -233,8 +232,6 @@ namespace sen55 {
     //% 
     float temperature() {
         readIfStale();
-        int value = _temp;
-        uBit.serial.printf("Temp= %d\r\n",value);
         return _temp == (int16_t)0xFFFF ? NAN : (_temp/200.0f);
     }
 
