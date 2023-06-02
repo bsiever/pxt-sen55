@@ -8,7 +8,7 @@ enum Sen55SensorMode {
 }
 
 //% color=#cf64ed
-//% icon="\uf0a7"
+//% icon="\uf72e"
 //% block="SEN55"
 //% groups="['Advanced']"
 namespace Sen55 {
@@ -19,7 +19,7 @@ namespace Sen55 {
 
     // Helper function
     //% shim=sen55::setErrorHandler
-    export function setErrorHandler(a: Action) {
+    function setErrorHandler(a: Action) {
         errorHandler = a; 
     }
 
@@ -27,7 +27,6 @@ namespace Sen55 {
     function _startMeasurements(withPM: boolean) {
         0;
     }
-
 
     /**
      * Set a handler for errors 
@@ -48,7 +47,7 @@ namespace Sen55 {
     }
 
     //% shim=sen55::getLastError
-    export function getLastError(): string {
+    function getLastError(): string {
         return lastError;
     }
 
@@ -84,47 +83,55 @@ namespace Sen55 {
         _startMeasurements(isNaN(measurementType) ? true : measurementType == Sen55SensorMode.WithParticleMass);
     }
 
+    // block="stop measurements"
     //% shim=sen55::stopMeasurements
     export function stopMeasurements() {
         0;
     }
 
+    // block="particle mass 1.0 µg/m³"
     //% shim=sen55::pm10
     export function pm10(): number {
         return 0;
     }
 
+    // block="particle mass 2.5 µg/m³"
     //% shim=sen55::pm25
     export function pm25(): number {
         return 0;
     }
 
+    // block="particle mass 4.0 µg/m³"
     //% shim=sen55::pm40
     export function pm40(): number {
         return 0;
     }
     
+    // block="particle mass 10 µg/m³"
     //% shim=sen55::pm100
     export function pm100(): number {
         return 0;
     }
 
-
+    // block="temperature °C"
     //% shim=sen55::temperature
     export function temperature(): number {
         return 0;
     }
 
+    // block="humidity (\%relative)"
     //% shim=sen55::humidity
     export function humidity(): number {
         return 0;
     }
 
+    //% block="VOC index"
     //% shim=sen55::VOC 
     export function VOC(): number {
         return 0;
     }
 
+    //% block="NOx index"
     //% shim=sen55:NOx
     export function NOx(): number {
         return 0;
