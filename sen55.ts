@@ -7,6 +7,18 @@ enum Sen55SensorMode {
     WithoutParticleMass
 }
 
+enum Sen55ParticleMasses {
+    //% block="1.0"
+    PM10,
+    //% block="2.5"
+    PM25,
+    //% block="4.0"
+    PM40,
+    //% block="10.0"
+    PM100
+}
+
+
 //% color=#149ef5
 //% icon="\uf0c2"
 //% block="SEN55"
@@ -33,6 +45,26 @@ namespace Sen55 {
         return lastError;
     }
 
+    //% shim=sen55::pm10
+    function pm10(): number {
+        return 0;
+    }
+
+    //% shim=sen55::pm25
+    function pm25(): number {
+        return 0;
+    }
+
+    //% shim=sen55::pm40
+    function pm40(): number {
+        return 0;
+    }
+
+    //% shim=sen55::pm100
+    function pm100(): number {
+        return 0;
+    }
+
     // ************** Exposed primary blocks **************
 
     /**
@@ -48,32 +80,21 @@ namespace Sen55 {
         _startMeasurements(isNaN(measurementType) ? true : measurementType == Sen55SensorMode.WithParticleMass);
     }
 
-    //% block="particle mass 1.0 µg/m³"
-    //% shim=sen55::pm10
-    //% weight=730
-    export function pm10(): number {
-        return 0;
-    }
 
-    //% block="particle mass 2.5 µg/m³"
-    //% shim=sen55::pm25
-    //% weight=720
-    export function pm25(): number {
-        return 0;
-    }
-
-    //% block="particle mass 4.0 µg/m³"
-    //% shim=sen55::pm40
-    //% weight=710
-    export function pm40(): number {
-        return 0;
-    }
-    
-    //% block="particle mass 10 µg/m³"
-    //% shim=sen55::pm100
+    //% block="particle mass $choice µg/m³"
     //% weight=700
-    export function pm100(): number {
-        return 0;
+    export function particleMass(choice: Sen55ParticleMasses) {
+        switch(choice) {
+            case Sen55ParticleMasses.PM10:
+                return pm10()
+            case Sen55ParticleMasses.PM25:
+                return pm25()
+            case Sen55ParticleMasses.PM40:
+                return pm40()
+            case Sen55ParticleMasses.PM100:
+                return pm100()
+        }
+        return 65535;
     }
 
     //% block="VOC index"
