@@ -103,7 +103,7 @@ namespace sen55 {
     }
 
 
-    // Send a command to the SEN55 and wait for the specified delay
+    // Send a command to the SEN55 and wait for the specified delay (in ms)
     static bool sendCommand(uint16_t command, uint16_t delay) {
         command = ((command & 0xFF00) >> 8) | ((command & 0x00FF) << 8);
         uint8_t status; 
@@ -152,26 +152,32 @@ namespace sen55 {
      * Read the sensor values and update state variables
     */
     static void readValues() {
-        uint32_t deviceErrors = deviceStatus();
-        bool commandStatus = sendCommand(0x03C4, 20);
+        if (deviceStatus() != 0)
+        {
+            invalidateValues();
+            sen55_error("Read Sensor: Device Status Error");
+            return;
+        }
+        bool commandStatus = sendCommand(0x03C4, 200);
         uint8_t data[24];
         bool readStatus = readData(data, sizeof(data));
-        if(deviceErrors!=0 || mode==Idle || commandStatus==false || readStatus==false || checkBuffer(data, sizeof(data))==false) {
+        if(mode==Idle || commandStatus==false || readStatus==false || checkBuffer(data, sizeof(data))==false) {
             invalidateValues();
             sen55_error("Read Sensor Data Error");
             return;
         }
+        uBit.serial.printf("Read Values\r\n");
 
         // Valid read: Update state
         _lastReadTime = uBit.systemTime();
-        _pm1    = *((uint16_t*)(data+0));
-        _pm25   = *((uint16_t*)(data+3));
-        _pm4    = *((uint16_t*)(data+6));
-        _pm10   = *((uint16_t*)(data+9));
-        _rh     = *((uint16_t*)(data+12));
-        _temp   = *((uint16_t*)(data+15));
-        _voci   = *((uint16_t*)(data+18));
-        _noxi   = *((uint16_t*)(data+21));
+        _pm1    = (uint16_t)(data[0]<<8 | data[1]);
+        _pm25   = (uint16_t)(data[3]<<8 | data[4]);
+        _pm4    = (uint16_t)(data[6]<<8 | data[7]);
+        _pm10   = (uint16_t)(data[9]<<8 | data[10]);
+        _rh     = (int16_t)(data[12]<<8 | data[13]);
+        _temp   = (int16_t)(data[15]<<8 | data[16]);
+        _voci   = (int16_t)(data[18]<<8 | data[19]);
+        _noxi   = (int16_t)(data[21]<<8 | data[22]);
     }
 
     /* 
@@ -201,51 +207,53 @@ namespace sen55 {
     //%
     float pm10() {
         readIfStale();
-        return _pm1 == 0xFFFF ? 65535 : _pm1/10.0;
+        return _pm1 == 0xFFFF ? NAN : (_pm1/10.0f);
     }
 
     // Get PM2.5 value
     //%
     float pm25() {
         readIfStale();
-        return _pm25 == 0xFFFF ? 65535 : _pm25/10.0;
+        return _pm25 == 0xFFFF ? NAN : (_pm25/10.0f);
     }
 
     // Get PM4.0 value
     //%
     float pm40() {
         readIfStale();
-        return _pm4 == 0xFFFF ? 65535 : _pm4/10.0;
+        return _pm4 == 0xFFFF ? NAN : (_pm4/10.0f);
     }
     // Get PM10.0 value
     //%
     float pm100() {
         readIfStale();
-        return _pm10 == 0xFFFF ? 65535 : _pm10/10.0;
+        return _pm10 == 0xFFFF ? NAN : (_pm10/10.0f);
     }
 
     //% 
     float temperature() {
         readIfStale();
-        return _temp == (int16_t)0xFFFF ? 65535 : _temp/200.0;
+        int value = _temp;
+        uBit.serial.printf("Temp= %d\r\n",value);
+        return _temp == (int16_t)0xFFFF ? NAN : (_temp/200.0f);
     }
 
     //% 
     float humidity() {
         readIfStale();
-        return _rh == (int16_t)0xFFFF ? 65535 : _rh/100.0;
+        return _rh == (int16_t)0xFFFF ? NAN : (_rh/100.0f);
     }
 
     //%
     float VOC() {
         readIfStale();
-        return _voci == (int16_t)0xFFFF ? 65535 : _voci/10.0;
+        return _voci == (int16_t)0xFFFF ? NAN : (_voci/10.0f);
     }
 
     //%
     float NOx() {
         readIfStale();
-        return _noxi == (int16_t)0xFFFF ? 65535 : _noxi/10.0;
+        return _noxi == (int16_t)0xFFFF ? NAN : (_noxi/10.0f);
     }
 
 
@@ -278,7 +286,6 @@ namespace sen55 {
 
     //%
     void _startMeasurements(bool withPM) {
-        uBit.serial.printf("Starting measurements with pm %s\n", withPM ? "true" : "false");
         bool commandStatus = sendCommand(withPM ? 0x0021 : 0x0037, 50);
         if(commandStatus == false) {
             sen55_error("Start Measurements Error");
@@ -324,7 +331,7 @@ namespace sen55 {
 
     //% 
     int deviceStatus() {
-        bool commandStatus = sendCommand(0xD006, 20);
+        bool commandStatus = sendCommand(0xD206, 20);
         uint8_t data[6];
         bool readStatus = readData(data, sizeof(data));
         if(commandStatus==false || readStatus==false || checkBuffer(data, sizeof(data))==false) {

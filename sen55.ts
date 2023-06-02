@@ -192,21 +192,21 @@ namespace Sen55 {
     export function allSensorValues(handler: (pm10: number, pm25: number, pm40: number, pm100: number, rh: number, temp: number, VOC: number, NOx: number) => void) {
         // get values...If not error, call handler
         const _pm10 = pm10()
-        if (_pm10 == 65535) return
+        if (Number.isNaN(_pm10)) return
         const _pm25 = pm25()
-        if (_pm25 == 65535) return
+        if (Number.isNaN(_pm25)) return
         const _pm40 = pm40()
-        if (_pm40 == 65535) return
+        if (Number.isNaN(_pm40)) return
         const _pm100 = pm100()
-        if (_pm100 == 65535) return
+        if (Number.isNaN(_pm100)) return
         const _rh = humidity()
-        if (_rh == 65535) return
+        if (Number.isNaN(_rh)) return
         const _temp = temperature()
-        if (_temp == 65535) return
+        if (Number.isNaN(_temp)) return
         const _voc = VOC()
-        if (_voc == 65535) return
+        if (Number.isNaN(_voc)) return
         const _NOx = NOx()
-        if (_NOx == 65535) return
+        if (Number.isNaN(_NOx)) return
         handler(_pm10, _pm25, _pm40, _pm100, _rh, _temp, _voc, _NOx)
     }
 
@@ -220,13 +220,13 @@ namespace Sen55 {
     export function allGasSensorValues(handler: (rh: number, temp: number, VOC: number, NOx: number) => void) {
         // get values...If not error, call handler
         const _rh = humidity()
-        if (_rh == 65535) return
+        if (Number.isNaN(_rh)) return
         const _temp = temperature()
-        if (_temp == 65535) return
+        if (Number.isNaN(_temp)) return
         const _voc = VOC()
-        if (_voc == 65535) return
+        if (Number.isNaN(_voc)) return
         const _NOx = NOx()
-        if (_NOx == 65535) return
+        if (Number.isNaN(_NOx)) return
         handler(_rh, _temp, _voc, _NOx)
     }
 
