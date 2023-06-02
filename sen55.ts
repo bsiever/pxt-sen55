@@ -83,7 +83,7 @@ namespace Sen55 {
 
     //% block="particle mass $choice µg/m³"
     //% weight=700
-    export function particleMass(choice: Sen55ParticleMasses) {
+    export function particleMass(choice: Sen55ParticleMasses) : number {
         switch(choice) {
             case Sen55ParticleMasses.PM10:
                 return pm10()
@@ -118,7 +118,7 @@ namespace Sen55 {
         return 0;
     }
 
-    //% block="humidity (%%relative)"
+    //% block="humidity (\\% relative)"
     //% shim=sen55::humidity
     //% weight=300
     export function humidity(): number {
