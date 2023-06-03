@@ -278,6 +278,26 @@ namespace Sen55 {
         handler(_rh, _temp, _voc, _NOx)
     }
 
+    /**
+     * Get all raw gas sensor values in "non-error" context.  
+     */
+    //% block="on valid sensor values $rawRh, $rawTemp, $rawVOC, $rawNOx" advanced=true
+    //% draggableParameters=variable
+    //% handlerStatement=1
+    //% weight=710
+    export function allRawGasValues(handler: (rawRh: number, rawTemp: number, rawVOC: number, rawNOx: number) => void) {
+        // get values...If not error, call handler
+        const _rawRh = rawHumidity()
+        if (Number.isNaN(_rawRh)) return
+        const _rawTemp = rawTemperature()
+        if (Number.isNaN(_rawTemp)) return
+        const _rawVOC = rawVOC()
+        if (Number.isNaN(_rawVOC)) return
+        const _rawNOx = rawNOx()
+        if (Number.isNaN(_rawNOx)) return
+        handler(_rawRh, _rawTemp, _rawVOC, _rawNOx)
+    }
+    
     //% block="reset" advanced=true
     //% shim=sen55::reset
     //% weight=600
