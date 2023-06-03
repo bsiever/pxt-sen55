@@ -1,5 +1,19 @@
 # SEN55 Air Quality Sensor
 
+This extension supports the [Sensirion SEN55](https://sensirion.com/products/catalog/SEN55/) Environmental Sensor Node, which includes sensors for:
+
+* Airborne Particulate matter (1.0, 2.5, 4.0, and 10.0 µg/m³)
+* Volatile Organic Compounds (VOCs)
+* Nitrogen Oxides (NOx)
+* Relative Humidity
+* Temperature
+
+Sensor details and data sheets can be found at: [https://sensirion.com/products/catalog/SEN55/](https://sensirion.com/products/catalog/SEN55/)
+
+
+
+
+
 <!-- This extension expands the behaviors supported by the A & B buttons.  It supports (mutually exclusive) detection of a single click of a button, a double click of a button, or holding a button down. 
 
 

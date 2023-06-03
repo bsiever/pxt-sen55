@@ -64,28 +64,29 @@ namespace Sen55 {
 
     //% shim=sen55::pm10
     function pm10(): number {
-        return 0;
+        return 4.1;
     }
 
     //% shim=sen55::pm25
     function pm25(): number {
-        return 0;
+        return 5.25;
     }
 
     //% shim=sen55::pm40
     function pm40(): number {
-        return 0;
+        return 3.4;
     }
 
     //% shim=sen55::pm100
     function pm100(): number {
-        return 0;
+        return 2.1;
     }
 
     // ************** Exposed primary blocks **************
 
     /**
-      * Start Measurements
+      * Start Measurements with the given measurement type.  
+      * Measurements must be started before data can be read.  Some sensors require a warm-up period before measurements are accurate.
       * @param measurementType to use
       */
     //% block="start measurements || $measurementType"
@@ -118,28 +119,28 @@ namespace Sen55 {
     //% shim=sen55::VOC 
     //% weight=600
     export function VOC(): number {
-        return 0;
+        return 90;
     }
 
     //% block="NOx index"
     //% shim=sen55::NOx
     //% weight=500
     export function NOx(): number {
-        return 0;
+        return 1;
     }
 
     //% block="temperature °C"
     //% shim=sen55::temperature
     //% weight=400
     export function temperature(): number {
-        return 0;
+        return 26.1;
     }
 
     //% block="humidity (\\% relative)"
     //% shim=sen55::humidity
     //% weight=300
     export function humidity(): number {
-        return 0;
+        return 30.5;
     }
 
     //% block="stop measurements"
@@ -173,16 +174,46 @@ namespace Sen55 {
 
     //% block="device status" advanced=true
     //% shim=sen55::deviceStatus
-    //% weight=1000
+    //% weight=950
     export function deviceStatus(): number {
         return 0;
     }
+
+   //% block="raw VOC index"
+    //% shim=sen55::rawVOC 
+    //% weight=890
+    export function rawVOC(): number {
+        return 90;
+    }
+
+    //% block="raw NOx index"
+    //% shim=sen55::rawNOx
+    //% weight=880
+    export function rawNOx(): number {
+        return 1;
+    }
+
+    //% block="raw temperature °C"
+    //% shim=sen55::rawTemperature
+    //% weight=870
+    export function rawTemperature(): number {
+        return 26.1;
+    }
+
+    //% block="raw humidity (\\% relative)"
+    //% shim=sen55::rawHumidity
+    //% weight=860
+    export function rawHumidity(): number {
+        return 30.5;
+    }
+
+
 
     //% block="product name" advanced=true
     //% shim=sen55::productName
     //% weight=830
     export function productName(): string {
-        return "SEN-55 (SIM)";
+        return "SEN55 (SIM)";
     }
 
     //% block="serial number" advanced=true
@@ -268,7 +299,4 @@ namespace Sen55 {
     export function startFanCleaning() {
         0;
     }
-
-
-
 }

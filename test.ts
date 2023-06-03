@@ -8,7 +8,11 @@ input.onButtonPressed(Button.A, function () {
     serial.writeValue("humidity", Sen55.humidity())
     serial.writeValue("VOC", Sen55.VOC())
     serial.writeValue("NOx", Sen55.NOx())
-})
+    serial.writeValue("raw temp", Sen55.rawTemperature())
+    serial.writeValue("raw humidity", Sen55.rawHumidity())
+    serial.writeValue("raw NOx", Sen55.rawNOx())
+    serial.writeValue("raw VOC", Sen55.rawVOC())
+}) 
 input.onButtonPressed(Button.B, function () {
     serial.writeLine(Sen55.productName())
     serial.writeLine(Sen55.serialNumber())

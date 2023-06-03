@@ -42,9 +42,13 @@ namespace sen55 {
     static int16_t  _temp;
     static int16_t  _voci;
     static int16_t  _noxi;
-
+    static uint16_t _rawRh;
+    static uint16_t _rawTemp;
+    static uint16_t _rawVoc;
+    static uint16_t _rawNox;
 
     static void invalidateValues() {
+        _lastReadTime = 0;  // No valid read has occurred
         _pm1  = 0xFFFF;
         _pm25 = 0xFFFF;
         _pm4  = 0xFFFF;
@@ -53,7 +57,10 @@ namespace sen55 {
         _temp = 0xFFFF;
         _voci = 0xFFFF;
         _noxi = 0xFFFF;
-        _lastReadTime = 0;  // No valid read has occurred
+        _rawRh  = 0xFFFF;
+        _rawTemp= 0xFFFF;
+        _rawVoc = 0xFFFF;
+        _rawNox = 0xFFFF;
     }
 
     // Forward Decls
@@ -168,6 +175,16 @@ namespace sen55 {
             return;
         }
 
+        // Now read the raw data values
+        commandStatus = sendCommand(0x03D2, 20);
+        uint8_t rawData[12];
+        readStatus = readData(rawData, sizeof(rawData));
+        if(commandStatus==false || readStatus==false || checkBuffer(rawData, sizeof(rawData))==false) {
+            invalidateValues();
+            sen55_error("Read Sensor Raw Data Error");
+            return;
+        }
+
         // Valid read: Update state
         _lastReadTime = uBit.systemTime();
         _pm1    = (uint16_t)(data[0]<<8 | data[1]);
@@ -178,6 +195,11 @@ namespace sen55 {
         _temp   = (int16_t)(data[15]<<8 | data[16]);
         _voci   = (int16_t)(data[18]<<8 | data[19]);
         _noxi   = (int16_t)(data[21]<<8 | data[22]);
+
+        _rawRh = (uint16_t)(rawData[0]<<8 | rawData[1]);
+        _rawTemp = (uint16_t)(rawData[3]<<8 | rawData[4]);
+        _rawVoc = (uint16_t)(rawData[6]<<8 | rawData[7]);
+        _rawNox = (uint16_t)(rawData[9]<<8 | rawData[10]);
     }
 
     /* 
@@ -252,6 +274,30 @@ namespace sen55 {
     float NOx() {
         readIfStale();
         return _noxi == (int16_t)0xFFFF ? NAN : (_noxi/10.0f);
+    }
+
+    //%
+    float rawHumidity() {
+        readIfStale();
+        return _rawRh == (uint16_t)0xFFFF ? NAN : (_rawRh/100.0f);
+    }
+
+    //%
+    float rawVOC() {
+        readIfStale();
+        return _rawVoc == (uint16_t)0xFFFF ? NAN : (_rawVoc/1.0f);
+    }
+
+    //% 
+    float rawNOx() {
+        readIfStale();
+        return _rawNox == (uint16_t)0xFFFF ? NAN : (_rawNox/1.0f);
+    }
+
+    //% 
+    float rawTemperature() {
+        readIfStale();
+        return _rawTemp == (uint16_t)0xFFFF ? NAN : (_rawTemp/200.0f);
     }
 
 
@@ -372,7 +418,12 @@ namespace sen55 {
     /*
     TODOs:
         Reset / set fan interval 
-        Advanced blocks for setting and reading values. 
+        Advanced blocks for setting and reading values.
+
+
+        Advanced: Read Mass and Number concentrations?
+          https://sensirion.com/media/documents/DC018826/637B94B8/Sensirion_SEN5x_Read_Mass_and_Number_Concentrations.pdf
+           
     */
 }
 
