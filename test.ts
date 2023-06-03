@@ -13,6 +13,10 @@ input.onButtonPressed(Button.B, function () {
     serial.writeLine(Sen55.productName())
     serial.writeLine(Sen55.serialNumber())
     serial.writeLine("" + (Sen55.firmwareVersion()))
+    let stat = Sen55.deviceStatus()
+    serial.writeLine("Status: " + stat)
+    serial.writeLine("Fan status " + ((stat & Sen55.StatusMasks.FanFailure) == 0) ? "off" : "on");
+    Sen55.startFanCleaning()
 })
 Sen55.startMeasurements()
 

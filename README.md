@@ -59,8 +59,7 @@ buttonClicks.onButtonSingleClicked(buttonClicks.AorB.B, function () {
 
 # Acknowledgements 
 
-Icon based on [Font Awesome icon 0????](https://www.iconfinder.com/search?q=????) SVG.
-
+Icon based on [Font Awesome icon 0xf0c2](https://www.iconfinder.com/search?q=f0c2) SVG.
 
 # Misc. 
 

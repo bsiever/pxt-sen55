@@ -23,7 +23,8 @@ enum Sen55ParticleMasses {
 //% icon="\uf0c2"
 //% block="SEN55"
 namespace Sen55 {
-    enum StatusMasks {
+
+    export enum StatusMasks {
         //% block="fan speed warning"
         FanSpeedWarning = 1 << 21,
         //% block="fan is cleaning"
@@ -171,7 +172,7 @@ namespace Sen55 {
     // ************** Exposed ADVANCED blocks **************
 
     //% block="device status" advanced=true
-    //% shim=sen55:deviceStatus
+    //% shim=sen55::deviceStatus
     //% weight=1000
     export function deviceStatus(): number {
         return 0;

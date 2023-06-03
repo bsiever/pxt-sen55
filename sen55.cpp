@@ -30,6 +30,10 @@ namespace sen55 {
 
     // State variables
     static Action errorHandler = NULL;
+    static String _lastError = PSTR("");
+
+    static SEN55RunMode mode = Idle; 
+    static unsigned long _lastReadTime;
     static uint16_t _pm1 ;
     static uint16_t _pm25;
     static uint16_t _pm4 ;
@@ -38,9 +42,6 @@ namespace sen55 {
     static int16_t  _temp;
     static int16_t  _voci;
     static int16_t  _noxi;
-    static unsigned long _lastReadTime;
-    static SEN55RunMode mode = Idle; 
-    static String _lastError = PSTR("");
 
 
     static void invalidateValues() {
@@ -60,7 +61,7 @@ namespace sen55 {
 
     /*
      * Helper method to send an actual error code to the registered handler.
-     * It will scall the handler
+     * It will call the handler
      */
     static void sen55_error(const char *error="") {
         _lastError = PSTR(error);
@@ -128,7 +129,7 @@ namespace sen55 {
         return status == MICROBIT_OK;
     }
 
-    // Both read name and read serial number use the same format
+    // Both name and serial number use the same format
     static String read48ByteString(uint16_t command) {
         bool commandStatus = sendCommand(command, 20);
         uint8_t data[48];
@@ -139,7 +140,7 @@ namespace sen55 {
         }
         uint16_t loc = 0;
         // Squeeze all bytes in without CRCs
-        for (uint16_t i = 0; i < sizeof(data); i += 3) {
+        for (uint16_t i = 0; i < sizeof(data)-2; i += 3) {
             data[loc++] = data[i];
             data[loc++] = data[i+1];
         }
@@ -158,7 +159,7 @@ namespace sen55 {
             sen55_error("Read Sensor: Device Status Error");
             return;
         }
-        bool commandStatus = sendCommand(0x03C4, 200);
+        bool commandStatus = sendCommand(0x03C4, 20);
         uint8_t data[24];
         bool readStatus = readData(data, sizeof(data));
         if(mode==Idle || commandStatus==false || readStatus==false || checkBuffer(data, sizeof(data))==false) {
@@ -183,7 +184,7 @@ namespace sen55 {
     * Read state if stored values are stale (more than a second old)
     */
     static void readIfStale() {
-        if(_lastReadTime==0 || uBit.systemTime() - _lastReadTime > staleDataTime) {
+        if( (_lastReadTime==0) || ((uBit.systemTime() - _lastReadTime) > staleDataTime) ) {
             readValues();
         }
     }
@@ -303,7 +304,7 @@ namespace sen55 {
 
     //% 
     void reset() {
-        bool commandStatus = sendCommand(0xD304, 200);
+        bool commandStatus = sendCommand(0xD304, 100);
         if(commandStatus == false) {
             sen55_error("Reset Error");
         } else {
@@ -326,7 +327,7 @@ namespace sen55 {
         return _lastError;
     }
 
-    //% 
+    //%
     int deviceStatus() {
         bool commandStatus = sendCommand(0xD206, 20);
         uint8_t data[6];
