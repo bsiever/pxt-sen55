@@ -47,6 +47,13 @@ namespace sen55 {
     static uint16_t _rawVoc;
     static uint16_t _rawNox;
 
+    static uint16_t _nc05;
+    static uint16_t _nc10;
+    static uint16_t _nc25;
+    static uint16_t _nc40;
+    static uint16_t _nc100;
+    static uint16_t _typicalSize;
+
     static void invalidateValues() {
         _lastReadTime = 0;  // No valid read has occurred
         _pm1  = 0xFFFF;
@@ -61,6 +68,13 @@ namespace sen55 {
         _rawTemp= 0xFFFF;
         _rawVoc = 0xFFFF;
         _rawNox = 0xFFFF;
+
+        _nc05  = 0xFFFF;
+        _nc10  = 0xFFFF;
+        _nc25  = 0xFFFF;
+        _nc40  = 0xFFFF;
+        _nc100  = 0xFFFF;
+        _typicalSize  = 0xFFFF;
     }
 
     // Forward Decls
@@ -166,8 +180,8 @@ namespace sen55 {
             sen55_error("Read Sensor: Device Status Error");
             return;
         }
-        bool commandStatus = sendCommand(0x03C4, 20);
         uint8_t data[24];
+        bool commandStatus = sendCommand(0x03C4, 20);
         bool readStatus = readData(data, sizeof(data));
         if(mode==Idle || commandStatus==false || readStatus==false || checkBuffer(data, sizeof(data))==false) {
             invalidateValues();
@@ -176,12 +190,22 @@ namespace sen55 {
         }
 
         // Now read the raw data values
-        commandStatus = sendCommand(0x03D2, 20);
         uint8_t rawData[12];
+        commandStatus = sendCommand(0x03D2, 20);
         readStatus = readData(rawData, sizeof(rawData));
         if(commandStatus==false || readStatus==false || checkBuffer(rawData, sizeof(rawData))==false) {
             invalidateValues();
             sen55_error("Read Sensor Raw Data Error");
+            return;
+        }
+
+        // Now read the raw data values for PM
+        uint8_t rawPmData[30];
+        commandStatus = sendCommand(0x0413, 20);
+        readStatus = readData(rawPmData, sizeof(rawPmData));
+        if(commandStatus==false || readStatus==false || checkBuffer(rawPmData, sizeof(rawPmData))==false) {
+            invalidateValues();
+            sen55_error("Read Sensor Raw PM Data Error");
             return;
         }
 
@@ -200,6 +224,13 @@ namespace sen55 {
         _rawTemp = (uint16_t)(rawData[3]<<8 | rawData[4]);
         _rawVoc = (uint16_t)(rawData[6]<<8 | rawData[7]);
         _rawNox = (uint16_t)(rawData[9]<<8 | rawData[10]);
+
+        _nc05 = (uint16_t)(rawPmData[12]<<8 | rawPmData[13]);
+        _nc10 = (uint16_t)(rawPmData[15]<<8 | rawPmData[16]);
+        _nc25 = (uint16_t)(rawPmData[18]<<8 | rawPmData[19]);
+        _nc40 = (uint16_t)(rawPmData[21]<<8 | rawPmData[22]);
+        _nc100 = (uint16_t)(rawPmData[24]<<8 | rawPmData[25]);
+        _typicalSize = (uint16_t)(rawPmData[27]<<8 | rawPmData[28]);
     }
 
     /* 
@@ -251,6 +282,43 @@ namespace sen55 {
         readIfStale();
         return _pm10 == 0xFFFF ? NAN : (_pm10/10.0f);
     }
+
+    //%
+    float nc05() {
+        readIfStale();
+        return _nc05 == 0xFFFF ? NAN : (_nc05/10.0f);
+    }
+
+    //%
+    float nc10() {
+        readIfStale();
+        return _nc10 == 0xFFFF ? NAN : (_nc10/10.0f);
+    }
+
+    //%
+    float nc25() {
+        readIfStale();
+        return _nc25 == 0xFFFF ? NAN : (_nc25/10.0f);
+    }
+
+    //%
+    float nc40() {
+        readIfStale();
+        return _nc40 == 0xFFFF ? NAN : (_nc40/10.0f);
+    }
+
+    //% 
+    float nc100() {
+        readIfStale();
+        return _nc100 == 0xFFFF ? NAN : (_nc100/10.0f);
+    }
+
+    //%
+    float typicalParticleSize() {
+        readIfStale();
+        return _typicalSize == 0xFFFF ? NAN : (_typicalSize/1000.0f);
+    }
+
 
     //% 
     float temperature() {
@@ -369,7 +437,7 @@ namespace sen55 {
     }
 
     //% 
-    String getLastError() {
+    String lastError() {
         return _lastError;
     }
 
@@ -420,10 +488,10 @@ namespace sen55 {
         Reset / set fan interval 
         Advanced blocks for setting and reading values.
 
+        Safe data context to include number values? (Blerg)
 
-        Advanced: Read Mass and Number concentrations?
-          https://sensirion.com/media/documents/DC018826/637B94B8/Sensirion_SEN5x_Read_Mass_and_Number_Concentrations.pdf
-           
+        README and Docstrings. 
+
     */
 }
 

@@ -17,12 +17,23 @@ enum Sen55ParticleMasses {
     //% block="10.0"
     PM100
 }
-
+enum Sen55ParticleCounts {
+    //% block="0.5"
+    PC05,
+    //% block="1.0"
+    PC10,
+    //% block="2.5"
+    PC25,
+    //% block="4.0"
+    PC40,
+    //% block="10.0"
+    PC100
+}
 
 //% color=#149ef5
 //% icon="\uf0c2"
 //% block="SEN55"
-namespace Sen55 {
+namespace sen55 {
 
     export enum StatusMasks {
         //% block="fan speed warning"
@@ -43,7 +54,7 @@ namespace Sen55 {
     //% whenUsed
     let errorHandler: Action = null;
     //% whenUsed
-    let lastError: string = null;
+    let _lastError: string = null;
 
     // ************** Private helpers **************
 
@@ -57,9 +68,9 @@ namespace Sen55 {
         0;
     }
 
-    //% shim=sen55::getLastError
-    function getLastError(): string {
-        return lastError;
+    //% shim=sen55::lastError
+    function lastError(): string {
+        return _lastError;
     }
 
     //% shim=sen55::pm10
@@ -81,6 +92,32 @@ namespace Sen55 {
     function pm100(): number {
         return 2.1;
     }
+
+    //% shim=sen55::nc05
+    function nc05(): number {
+        return 2.1;
+    }
+
+    //% shim=sen55::nc10
+    function nc10(): number {
+        return 2.1;
+    }
+
+    //% shim=sen55::nc25
+    function nc25(): number {
+        return 2.1;
+    }
+
+    //% shim=sen55::nc40
+    function nc40(): number {
+        return 2.1;
+    }
+
+    //% shim=sen55::nc100
+    function nc100(): number {
+        return 2.1;
+    }
+
 
     // ************** Exposed primary blocks **************
 
@@ -112,20 +149,38 @@ namespace Sen55 {
             case Sen55ParticleMasses.PM100:
                 return pm100()
         }
-        return 65535;
+        return NaN;
+    }
+
+    //% block="particle number concentration $choice #/cm³"
+    //% weight=650
+    export function particleNumber(choice: Sen55ParticleCounts) : number {
+        switch(choice) {
+            case Sen55ParticleCounts.PC05:
+                return nc05()
+            case Sen55ParticleCounts.PC10:
+                return nc10()
+            case Sen55ParticleCounts.PC25:
+                return nc25()
+            case Sen55ParticleCounts.PC40:
+                return nc40()
+            case Sen55ParticleCounts.PC100:
+                return nc100()
+        }
+        return NaN;
     }
 
     //% block="VOC index"
     //% shim=sen55::VOC 
     //% weight=600
-    export function VOC(): number {
+    export function VOCIndex(): number {
         return 90;
     }
 
     //% block="NOx index"
     //% shim=sen55::NOx
     //% weight=500
-    export function NOx(): number {
+    export function NOxIndex(): number {
         return 1;
     }
 
@@ -160,7 +215,7 @@ namespace Sen55 {
     export function onError(errCallback: (reason: string) => void) {
         if (errCallback) {
             errorHandler = () => {
-                let le = getLastError();
+                let le = lastError();
                 errCallback(le);
             };
         } else {
@@ -179,12 +234,19 @@ namespace Sen55 {
         return 0;
     }
 
-   //% block="raw VOC index"
+    //% block="raw VOC index"
     //% shim=sen55::rawVOC 
     //% weight=890
     export function rawVOC(): number {
         return 90;
     }
+
+    //% block="typical particle size µm"
+    //% shim=sen55::typicalParticleSize
+    export function typicalParticleSize(): number {
+      return 2.1;
+    }
+
 
     //% block="raw NOx index"
     //% shim=sen55::rawNOx
@@ -231,13 +293,13 @@ namespace Sen55 {
     }
 
     /**
-     * Get all sensor values in "non-error" context.  
+     * On all valid data ("non-error" context).  
      */
     //% block="on valid sensor values $pm10, $pm25, $pm40, $pm100, $rh, $temp, $VOC, $NOx" advanced=true
     //% draggableParameters=variable
     //% handlerStatement=1
     //% weight=720
-    export function allSensorValues(handler: (pm10: number, pm25: number, pm40: number, pm100: number, rh: number, temp: number, VOC: number, NOx: number) => void) {
+    export function onValidData(handler: (pm10: number, pm25: number, pm40: number, pm100: number, rh: number, temp: number, VOC: number, NOx: number) => void) {
         // get values...If not error, call handler
         const _pm10 = pm10()
         if (Number.isNaN(_pm10)) return
@@ -251,41 +313,41 @@ namespace Sen55 {
         if (Number.isNaN(_rh)) return
         const _temp = temperature()
         if (Number.isNaN(_temp)) return
-        const _voc = VOC()
+        const _voc = VOCIndex()
         if (Number.isNaN(_voc)) return
-        const _NOx = NOx()
+        const _NOx = NOxIndex()
         if (Number.isNaN(_NOx)) return
         handler(_pm10, _pm25, _pm40, _pm100, _rh, _temp, _voc, _NOx)
     }
 
     /**
-     * Get all sensor values in "non-error" context.  
+     * On all valid gas data ("non-error" context). 
      */
-    //% block="on valid sensor values $rh, $temp, $VOC, $NOx" advanced=true
+    //% block="on valid sensor gas values $rh, $temp, $VOC, $NOx" advanced=true
     //% draggableParameters=variable
     //% handlerStatement=1
     //% weight=710
-    export function allGasSensorValues(handler: (rh: number, temp: number, VOC: number, NOx: number) => void) {
+    export function onValidGasData(handler: (rh: number, temp: number, VOC: number, NOx: number) => void) {
         // get values...If not error, call handler
         const _rh = humidity()
         if (Number.isNaN(_rh)) return
         const _temp = temperature()
         if (Number.isNaN(_temp)) return
-        const _voc = VOC()
+        const _voc = VOCIndex()
         if (Number.isNaN(_voc)) return
-        const _NOx = NOx()
+        const _NOx = NOxIndex()
         if (Number.isNaN(_NOx)) return
         handler(_rh, _temp, _voc, _NOx)
     }
 
     /**
-     * Get all raw gas sensor values in "non-error" context.  
+     * On all valid raw gas data ("non-error" context).   
      */
-    //% block="on valid sensor values $rawRh, $rawTemp, $rawVOC, $rawNOx" advanced=true
+    //% block="on valid raw values $rawRh, $rawTemp, $rawVOC, $rawNOx" advanced=true
     //% draggableParameters=variable
     //% handlerStatement=1
     //% weight=710
-    export function allRawGasValues(handler: (rawRh: number, rawTemp: number, rawVOC: number, rawNOx: number) => void) {
+    export function onRawGasValues(handler: (rawRh: number, rawTemp: number, rawVOC: number, rawNOx: number) => void) {
         // get values...If not error, call handler
         const _rawRh = rawHumidity()
         if (Number.isNaN(_rawRh)) return
