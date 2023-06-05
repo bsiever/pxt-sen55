@@ -49,6 +49,8 @@ namespace sen55 {
     // Sensirion SEN55 address is 0x69:
     const int address = 0x69 << 1;
     const int staleDataTime = 1050;   // ms until data is considered stale
+    const uint16_t UINT_INVALID = (uint16_t)0xFFFF;
+    const int16_t  INT_INVALID = (int16_t)0xFFFF;
 
     // State variables
     static Action errorHandler = NULL;
@@ -57,12 +59,12 @@ namespace sen55 {
     static SEN55RunMode mode = Idle; 
     static unsigned long _lastReadTime;
     static uint16_t _pm[PMCount] ;
-    static int16_t  _rh  ;
-    static int16_t  _temp;
-    static int16_t  _voci;
-    static int16_t  _noxi;
+    static int16_t  _rh  ;     // TODO: Confirm int16?
+    static int16_t  _temp;  
+    static int16_t  _voci;     // TODO:Confirm int16?
+    static int16_t  _noxi;     // TODO:  Confirm int16?
     static uint16_t _rawRh;
-    static uint16_t _rawTemp;
+    static uint16_t _rawTemp;  // TODO: Confirm uint16?
     static uint16_t _rawVoc;
     static uint16_t _rawNox;
 
@@ -72,21 +74,21 @@ namespace sen55 {
     static void invalidateValues() {
         _lastReadTime = 0;  // No valid read has occurred
         for (int i = 0;i<PMCount;i++) {
-            _pm[i] = 0xFFFF;
+            _pm[i] = UINT_INVALID;
         }
-        _rh   = 0xFFFF;
-        _temp = 0xFFFF;
-        _voci = 0xFFFF;
-        _noxi = 0xFFFF;
-        _rawRh  = 0xFFFF;
-        _rawTemp= 0xFFFF;
-        _rawVoc = 0xFFFF;
-        _rawNox = 0xFFFF;
+        _rh   = INT_INVALID;
+        _temp = INT_INVALID;
+        _voci = INT_INVALID;
+        _noxi = INT_INVALID;
+        _rawRh  = UINT_INVALID;
+        _rawTemp= UINT_INVALID;
+        _rawVoc = UINT_INVALID;
+        _rawNox = UINT_INVALID;
 
         for (int i = 0;i<NCCount;i++) {
-            _nc[i] = 0xFFFF;
+            _nc[i] = UINT_INVALID;
         }
-        _typicalSize  = 0xFFFF;
+        _typicalSize  = UINT_INVALID;
     }
 
     // Forward Decls
@@ -119,6 +121,20 @@ namespace sen55 {
             }   
         }
         return crc; 
+    }
+
+
+    static inline float roundP1(float value) {
+        // Round to nearest sixteenth  (0.0625)
+        return round(value*16)/16.0f;
+    }
+    static inline float roundP01(float value) {
+        // Round to nearest 1/128th  (0.0078125)
+        return round(value*128)/128.0f;
+    }
+    static inline float roundP001(float value) {
+        // Round to the nearest 1/1023 (0.0009765625)
+        return round(value*1024)/1024.0f;
     }
 
     /*
@@ -270,57 +286,56 @@ namespace sen55 {
     //%
     float typicalParticleSize() {
         readIfStale();
-        return _typicalSize == 0xFFFF ? NAN : (_typicalSize/1000.0f);
+        return _typicalSize == UINT_INVALID ? NAN : roundP001(_typicalSize/1000.0f);
     }
 
     //% 
     float temperature() {
         readIfStale();
-        return _temp == (int16_t)0xFFFF ? NAN : (_temp/200.0f);
+        return _temp == INT_INVALID ? NAN : roundP01(_temp/200.0f);
     }
 
     //% 
     float humidity() {
         readIfStale();
-        return _rh == (int16_t)0xFFFF ? NAN : (_rh/100.0f);
+        return _rh == INT_INVALID ? NAN : roundP01(_rh/100.0f);
     }
 
     //%
     float VOC() {
         readIfStale();
-        return _voci == (int16_t)0xFFFF ? NAN : (_voci/10.0f);
+        return _voci == INT_INVALID ? NAN : roundP1(_voci/10.0f);
     }
 
     //%
     float NOx() {
         readIfStale();
-        return _noxi == (int16_t)0xFFFF ? NAN : (_noxi/10.0f);
+        return _noxi == INT_INVALID ? NAN : roundP1(_noxi/10.0f);
     }
 
     //%
     float rawHumidity() {
         readIfStale();
-        return _rawRh == (uint16_t)0xFFFF ? NAN : (_rawRh/100.0f);
-    }
-
-    //%
-    float rawVOC() {
-        readIfStale();
-        return _rawVoc == (uint16_t)0xFFFF ? NAN : (_rawVoc/1.0f);
-    }
-
-    //% 
-    float rawNOx() {
-        readIfStale();
-        return _rawNox == (uint16_t)0xFFFF ? NAN : (_rawNox/1.0f);
+        return _rawRh == UINT_INVALID ? NAN : roundP01(_rawRh/100.0f);
     }
 
     //% 
     float rawTemperature() {
         readIfStale();
-        return _rawTemp == (uint16_t)0xFFFF ? NAN : (_rawTemp/200.0f);
+        return _rawTemp == UINT_INVALID ? NAN : roundP01(_rawTemp/200.0f);
     }
 
+    //%
+    float rawVOC() {
+        readIfStale();
+        return _rawVoc == UINT_INVALID ? NAN : (_rawVoc/1.0f);
+    }
+
+    //% 
+    float rawNOx() {
+        readIfStale();
+        return _rawNox == UINT_INVALID ? NAN : (_rawNox/1.0f);
+    }
 
     // Get product name:  Returns null on communication failure. 
     //%
@@ -346,8 +361,6 @@ namespace sen55 {
         }
         return data[0];
     }
-
-
 
     //%
     void _startMeasurements(bool withPM) {
@@ -387,7 +400,7 @@ namespace sen55 {
             return NAN;
         }
         readIfStale();
-        return _pm[mass] == 0xFFFF ? NAN : (_pm[mass]/10.0f);
+        return _pm[mass] == UINT_INVALID ? NAN : roundP1(_pm[mass]/10.0);
     }
 
     //% 
@@ -396,7 +409,7 @@ namespace sen55 {
             return NAN;
         }
         readIfStale();
-        return _nc[count] == 0xFFFF ? NAN : (_nc[count]/10.0f);
+        return _nc[count] == UINT_INVALID ? NAN : roundP1(_nc[count]/10.0);
     }
 
     //% 
@@ -459,10 +472,7 @@ namespace sen55 {
         Reset / set fan interval 
         Advanced blocks for setting and reading values.
 
-        Safe data context to include number values? (Blerg)
-
         README and Docstrings. 
 
     */
 }
-

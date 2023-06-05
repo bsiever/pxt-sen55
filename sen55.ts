@@ -17,6 +17,7 @@ enum Sen55ParticleMasses {
     //% block="10.0"
     PM100
 }
+
 enum Sen55ParticleCounts {
     //% block="0.5"
     PC05,
@@ -90,7 +91,7 @@ namespace sen55 {
     }
 
 
-    //% block="particle mass $choice µg/m³"
+    //% block="particle mass of particles from 0.3 to $choice µm in µg/m³"
     //% shim=sen55::particleMass
     //% weight=700
     export function particleMass(choice: Sen55ParticleMasses) : number {
@@ -107,7 +108,7 @@ namespace sen55 {
         return NaN;
     }
 
-    //% block="particle $choice #/cm³"
+    //% block="particle count of particles from 0.3 to $choice µm in #/cm³"
     //% shim=sen55::particleCount
     //% weight=650
     export function particleCount(choice: Sen55ParticleCounts) : number {
@@ -299,11 +300,11 @@ namespace sen55 {
     /**
      * On all valid raw gas data ("non-error" context).   
      */
-    //% block="on valid raw values $rawRh, $rawTemp, $rawVOC, $rawNOx" advanced=true
+    //% block="on valid raw values $rawRh, $rawTemp, $rawVOC, $rawNOx, $no05, $no10, $no25, $no40, $no100" advanced=true
     //% draggableParameters=variable
     //% handlerStatement=1
     //% weight=710
-    export function onRawGasValues(handler: (rawRh: number, rawTemp: number, rawVOC: number, rawNOx: number) => void) {
+    export function onRawGasValues(handler: (rawRh: number, rawTemp: number, rawVOC: number, rawNOx: number, no05: number, no10: number, no25: number, no40:number, no100:number) => void) {
         // get values...If not error, call handler
         const _rawRh = rawHumidity()
         if (Number.isNaN(_rawRh)) return
@@ -313,7 +314,18 @@ namespace sen55 {
         if (Number.isNaN(_rawVOC)) return
         const _rawNOx = rawNOx()
         if (Number.isNaN(_rawNOx)) return
-        handler(_rawRh, _rawTemp, _rawVOC, _rawNOx)
+        const _no05 = particleCount(Sen55ParticleCounts.PC05)
+        if (Number.isNaN(_no05)) return
+        const _no10 = particleCount(Sen55ParticleCounts.PC10)
+        if (Number.isNaN(_no10)) return
+        const _no25 = particleCount(Sen55ParticleCounts.PC25)
+        if (Number.isNaN(_no25)) return
+        const _no40 = particleCount(Sen55ParticleCounts.PC40)
+        if (Number.isNaN(_no40)) return
+        const _no100 = particleCount(Sen55ParticleCounts.PC100)
+        if (Number.isNaN(_no100)) return
+    
+        handler(_rawRh, _rawTemp, _rawVOC, _rawNOx, _no05, _no10, _no25, _no40, _no100)
     }
     
     //% block="reset" advanced=true

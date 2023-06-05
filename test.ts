@@ -1,6 +1,9 @@
 sen55.onError(function (reason) {
     serial.writeLine(reason)
 })
+
+basic.showNumber(3)
+
 input.onButtonPressed(Button.A, function () {
     serial.writeValue("pm10", sen55.particleMass(Sen55ParticleMasses.PM10))
     serial.writeValue("pm25", sen55.particleMass(Sen55ParticleMasses.PM25))
@@ -28,8 +31,6 @@ input.onButtonPressed(Button.A, function () {
 
     serial.writeValue("sz", sen55.typicalParticleSize())
     pause(100)
-    serial.writeLine("-------------")
-    serial.writeLine("-------------")
     serial.writeLine("-------------")
 
 }) 
