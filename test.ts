@@ -18,12 +18,12 @@ input.onButtonPressed(Button.A, function () {
     serial.writeValue("rawVOC", sen55.rawVOC())
     pause(100)
 
-    serial.writeValue("nv0p5", sen55.particleNumber(Sen55ParticleCounts.PC05))
-    serial.writeValue("nv1p0", sen55.particleNumber(Sen55ParticleCounts.PC10))
-    serial.writeValue("nv2p5", sen55.particleNumber(Sen55ParticleCounts.PC25))
+    serial.writeValue("nv0p5", sen55.particleCount(Sen55ParticleCounts.PC05))
+    serial.writeValue("nv1p0", sen55.particleCount(Sen55ParticleCounts.PC10))
+    serial.writeValue("nv2p5", sen55.particleCount(Sen55ParticleCounts.PC25))
     pause(100)
-    serial.writeValue("nv4p0", sen55.particleNumber(Sen55ParticleCounts.PC40))
-    serial.writeValue("nv10p0", sen55.particleNumber(Sen55ParticleCounts.PC100))
+    serial.writeValue("nv4p0", sen55.particleCount(Sen55ParticleCounts.PC40))
+    serial.writeValue("nv10p0", sen55.particleCount(Sen55ParticleCounts.PC100))
     pause(100)
 
     serial.writeValue("sz", sen55.typicalParticleSize())

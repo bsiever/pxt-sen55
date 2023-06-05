@@ -73,52 +73,6 @@ namespace sen55 {
         return _lastError;
     }
 
-    //% shim=sen55::pm10
-    function pm10(): number {
-        return 4.1;
-    }
-
-    //% shim=sen55::pm25
-    function pm25(): number {
-        return 5.25;
-    }
-
-    //% shim=sen55::pm40
-    function pm40(): number {
-        return 3.4;
-    }
-
-    //% shim=sen55::pm100
-    function pm100(): number {
-        return 2.1;
-    }
-
-    //% shim=sen55::nc05
-    function nc05(): number {
-        return 2.1;
-    }
-
-    //% shim=sen55::nc10
-    function nc10(): number {
-        return 2.1;
-    }
-
-    //% shim=sen55::nc25
-    function nc25(): number {
-        return 2.1;
-    }
-
-    //% shim=sen55::nc40
-    function nc40(): number {
-        return 2.1;
-    }
-
-    //% shim=sen55::nc100
-    function nc100(): number {
-        return 2.1;
-    }
-
-
     // ************** Exposed primary blocks **************
 
     /**
@@ -137,35 +91,37 @@ namespace sen55 {
 
 
     //% block="particle mass $choice µg/m³"
+    //% shim=sen55::particleMass
     //% weight=700
     export function particleMass(choice: Sen55ParticleMasses) : number {
         switch(choice) {
             case Sen55ParticleMasses.PM10:
-                return pm10()
+                return 1.0
             case Sen55ParticleMasses.PM25:
-                return pm25()
+                return 2.5
             case Sen55ParticleMasses.PM40:
-                return pm40()
+                return 4.0
             case Sen55ParticleMasses.PM100:
-                return pm100()
+                return 10.0
         }
         return NaN;
     }
 
-    //% block="particle number concentration $choice #/cm³"
+    //% block="particle $choice #/cm³"
+    //% shim=sen55::particleCount
     //% weight=650
-    export function particleNumber(choice: Sen55ParticleCounts) : number {
+    export function particleCount(choice: Sen55ParticleCounts) : number {
         switch(choice) {
             case Sen55ParticleCounts.PC05:
-                return nc05()
+                return 0.5
             case Sen55ParticleCounts.PC10:
-                return nc10()
+                return 1.0
             case Sen55ParticleCounts.PC25:
-                return nc25()
+                return 2.5
             case Sen55ParticleCounts.PC40:
-                return nc40()
+                return 4.0
             case Sen55ParticleCounts.PC100:
-                return nc100()
+                return 10.0
         }
         return NaN;
     }
@@ -301,13 +257,13 @@ namespace sen55 {
     //% weight=720
     export function onValidData(handler: (pm10: number, pm25: number, pm40: number, pm100: number, rh: number, temp: number, VOC: number, NOx: number) => void) {
         // get values...If not error, call handler
-        const _pm10 = pm10()
+        const _pm10 = particleMass(Sen55ParticleMasses.PM10)
         if (Number.isNaN(_pm10)) return
-        const _pm25 = pm25()
+        const _pm25 = particleMass(Sen55ParticleMasses.PM25)
         if (Number.isNaN(_pm25)) return
-        const _pm40 = pm40()
+        const _pm40 = particleMass(Sen55ParticleMasses.PM40)
         if (Number.isNaN(_pm40)) return
-        const _pm100 = pm100()
+        const _pm100 = particleMass(Sen55ParticleMasses.PM100)
         if (Number.isNaN(_pm100)) return
         const _rh = humidity()
         if (Number.isNaN(_rh)) return

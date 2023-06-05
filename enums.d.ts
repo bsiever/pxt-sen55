@@ -18,4 +18,25 @@
     MeasurementGasOnly = 2,
     }
 
+
+    declare const enum SEN55ParticleMasses
+    {
+    PM10 = 0,
+    PM25 = 1,
+    PM40 = 2,
+    PM100 = 3,
+    PMCount = 4,
+    }
+
+
+    declare const enum SEN55ParticleCounts
+    {
+    NC05 = 0,
+    NC10 = 1,
+    NC25 = 2,
+    NC40 = 3,
+    NC100 = 4,
+    NCCount = 5,
+    }
+
 // Auto-generated. Do not edit. Really.

@@ -21,7 +21,29 @@ enum SEN55RunMode
     Measurement,
     MeasurementGasOnly
 };
+
+enum SEN55ParticleMasses
+{
+    PM10,
+    PM25,
+    PM40,
+    PM100, 
+    PMCount
+};
+
+enum SEN55ParticleCounts
+{
+    NC05,
+    NC10,
+    NC25,
+    NC40,
+    NC100,
+    NCCount
+};
+
+
 namespace sen55 {
+
 
 
     // Sensirion SEN55 address is 0x69:
@@ -34,10 +56,7 @@ namespace sen55 {
 
     static SEN55RunMode mode = Idle; 
     static unsigned long _lastReadTime;
-    static uint16_t _pm1 ;
-    static uint16_t _pm25;
-    static uint16_t _pm4 ;
-    static uint16_t _pm10;
+    static uint16_t _pm[PMCount] ;
     static int16_t  _rh  ;
     static int16_t  _temp;
     static int16_t  _voci;
@@ -47,19 +66,14 @@ namespace sen55 {
     static uint16_t _rawVoc;
     static uint16_t _rawNox;
 
-    static uint16_t _nc05;
-    static uint16_t _nc10;
-    static uint16_t _nc25;
-    static uint16_t _nc40;
-    static uint16_t _nc100;
+    static uint16_t _nc[NCCount];
     static uint16_t _typicalSize;
 
     static void invalidateValues() {
         _lastReadTime = 0;  // No valid read has occurred
-        _pm1  = 0xFFFF;
-        _pm25 = 0xFFFF;
-        _pm4  = 0xFFFF;
-        _pm10 = 0xFFFF;
+        for (int i = 0;i<PMCount;i++) {
+            _pm[i] = 0xFFFF;
+        }
         _rh   = 0xFFFF;
         _temp = 0xFFFF;
         _voci = 0xFFFF;
@@ -69,11 +83,9 @@ namespace sen55 {
         _rawVoc = 0xFFFF;
         _rawNox = 0xFFFF;
 
-        _nc05  = 0xFFFF;
-        _nc10  = 0xFFFF;
-        _nc25  = 0xFFFF;
-        _nc40  = 0xFFFF;
-        _nc100  = 0xFFFF;
+        for (int i = 0;i<NCCount;i++) {
+            _nc[i] = 0xFFFF;
+        }
         _typicalSize  = 0xFFFF;
     }
 
@@ -211,10 +223,10 @@ namespace sen55 {
 
         // Valid read: Update state
         _lastReadTime = uBit.systemTime();
-        _pm1    = (uint16_t)(data[0]<<8 | data[1]);
-        _pm25   = (uint16_t)(data[3]<<8 | data[4]);
-        _pm4    = (uint16_t)(data[6]<<8 | data[7]);
-        _pm10   = (uint16_t)(data[9]<<8 | data[10]);
+        _pm[PM10]    = (uint16_t)(data[0]<<8 | data[1]);
+        _pm[PM25]    = (uint16_t)(data[3]<<8 | data[4]);
+        _pm[PM40]    = (uint16_t)(data[6]<<8 | data[7]);
+        _pm[PM100]   = (uint16_t)(data[9]<<8 | data[10]);
         _rh     = (int16_t)(data[12]<<8 | data[13]);
         _temp   = (int16_t)(data[15]<<8 | data[16]);
         _voci   = (int16_t)(data[18]<<8 | data[19]);
@@ -225,11 +237,11 @@ namespace sen55 {
         _rawVoc = (uint16_t)(rawData[6]<<8 | rawData[7]);
         _rawNox = (uint16_t)(rawData[9]<<8 | rawData[10]);
 
-        _nc05 = (uint16_t)(rawPmData[12]<<8 | rawPmData[13]);
-        _nc10 = (uint16_t)(rawPmData[15]<<8 | rawPmData[16]);
-        _nc25 = (uint16_t)(rawPmData[18]<<8 | rawPmData[19]);
-        _nc40 = (uint16_t)(rawPmData[21]<<8 | rawPmData[22]);
-        _nc100 = (uint16_t)(rawPmData[24]<<8 | rawPmData[25]);
+        _nc[NC05] = (uint16_t)(rawPmData[12]<<8 | rawPmData[13]);
+        _nc[NC10] = (uint16_t)(rawPmData[15]<<8 | rawPmData[16]);
+        _nc[NC25] = (uint16_t)(rawPmData[18]<<8 | rawPmData[19]);
+        _nc[NC40] = (uint16_t)(rawPmData[21]<<8 | rawPmData[22]);
+        _nc[NC100] = (uint16_t)(rawPmData[24]<<8 | rawPmData[25]);
         _typicalSize = (uint16_t)(rawPmData[27]<<8 | rawPmData[28]);
     }
 
@@ -255,70 +267,11 @@ namespace sen55 {
             pxt::incr(errorHandler);
     }
 
-
-    // Get PM1.0 value
-    //%
-    float pm10() {
-        readIfStale();
-        return _pm1 == 0xFFFF ? NAN : (_pm1/10.0f);
-    }
-
-    // Get PM2.5 value
-    //%
-    float pm25() {
-        readIfStale();
-        return _pm25 == 0xFFFF ? NAN : (_pm25/10.0f);
-    }
-
-    // Get PM4.0 value
-    //%
-    float pm40() {
-        readIfStale();
-        return _pm4 == 0xFFFF ? NAN : (_pm4/10.0f);
-    }
-    // Get PM10.0 value
-    //%
-    float pm100() {
-        readIfStale();
-        return _pm10 == 0xFFFF ? NAN : (_pm10/10.0f);
-    }
-
-    //%
-    float nc05() {
-        readIfStale();
-        return _nc05 == 0xFFFF ? NAN : (_nc05/10.0f);
-    }
-
-    //%
-    float nc10() {
-        readIfStale();
-        return _nc10 == 0xFFFF ? NAN : (_nc10/10.0f);
-    }
-
-    //%
-    float nc25() {
-        readIfStale();
-        return _nc25 == 0xFFFF ? NAN : (_nc25/10.0f);
-    }
-
-    //%
-    float nc40() {
-        readIfStale();
-        return _nc40 == 0xFFFF ? NAN : (_nc40/10.0f);
-    }
-
-    //% 
-    float nc100() {
-        readIfStale();
-        return _nc100 == 0xFFFF ? NAN : (_nc100/10.0f);
-    }
-
     //%
     float typicalParticleSize() {
         readIfStale();
         return _typicalSize == 0xFFFF ? NAN : (_typicalSize/1000.0f);
     }
-
 
     //% 
     float temperature() {
@@ -426,6 +379,24 @@ namespace sen55 {
             invalidateValues();
             _lastError = PSTR("");
         }
+    }
+
+    //%
+    float particleMass(SEN55ParticleMasses mass) {
+        if(mass < PM10 || mass > PM100) {
+            return NAN;
+        }
+        readIfStale();
+        return _pm[mass] == 0xFFFF ? NAN : (_pm[mass]/10.0f);
+    }
+
+    //% 
+    float particleCount(SEN55ParticleCounts count) {
+        if(count < NC05 || count > NC100) {
+            return NAN;
+        }
+        readIfStale();
+        return _nc[count] == 0xFFFF ? NAN : (_nc[count]/10.0f);
     }
 
     //% 
