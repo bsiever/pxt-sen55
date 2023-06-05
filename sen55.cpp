@@ -50,7 +50,7 @@ namespace sen55 {
     const int address = 0x69 << 1;
     const int staleDataTime = 1050;   // ms until data is considered stale
     const uint16_t UINT_INVALID = (uint16_t)0xFFFF;
-    const int16_t  INT_INVALID = (int16_t)0xFFFF;
+    const int16_t  INT_INVALID = (int16_t)0x7FFF;
 
     // State variables
     static Action errorHandler = NULL;

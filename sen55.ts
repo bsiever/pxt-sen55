@@ -31,8 +31,6 @@ enum Sen55ParticleCounts {
     PC100
 }
 
-
-
 //% color=#149ef5
 //% icon="\uf0c2"
 //% block="SEN55"
@@ -152,7 +150,7 @@ namespace sen55 {
     //% shim=sen55::VOC 
     //% weight=600
     export function VOCIndex(): number {
-        return 90;
+        return 1;
     }
 
     /**
@@ -243,7 +241,8 @@ namespace sen55 {
     }
 
     /**
-     * Get the raw VOC value (not an index)
+     * Get the raw VOC value (not an index).  The raw value is proportional to the 
+     * logarithm of the corresponding sensor resistance. See https://sensirion.com/media/documents/5FE8673C/61E96F50/Sensirion_Gas_Sensors_Datasheet_SGP41.pdf
      * Measurements must be started.
      */
     //% block="raw VOC index" advanced=true
@@ -255,7 +254,8 @@ namespace sen55 {
 
 
     /**
-     * Get the raw NOx value (not an index)
+     * Get the raw NOx value (not an index).  The raw value is proportional to the 
+     * logarithm of the corresponding sensor resistance. See https://sensirion.com/media/documents/5FE8673C/61E96F50/Sensirion_Gas_Sensors_Datasheet_SGP41.pdf
      * Measurements must be started.
      */
     //% block="raw NOx index" advanced=true
@@ -321,10 +321,11 @@ namespace sen55 {
      * On all valid (non-raw) basic data ("non-error" context).  
      * Only enters the context if all basic data values are valid:  
      *      pm10, pm25, pm40, and pm100 are particle masses up to 1.0, 2.3, 4.0, and 10.0 µm respectively;
-     *      rh is relative humidity
-     *      temp is temperature 
-     *      VOC is the VOC index 
-     *      NOx is the NOx index
+     *      rh is relative humidity [0-100]
+     *      temp is temperature in Celsius
+     *      VOC is the VOC index ([1-500]). See https://sensirion.com/media/documents/02232963/6294E043/Info_Note_VOC_Index.pdf.
+     *      NOx is the NOx index ([1-500]). See https://sensirion.com/media/documents/9F289B95/6294DFFC/Info_Note_NOx_Index.pdf.
+     * For details on the VOC and NOx indices see https://sensirion.com/media/documents/5FE8673C/61E96F50/Sensirion_Gas_Sensors_Datasheet_SGP41.pdf#page=10 and 
      */
     //% block="on valid sensor values $pm10, $pm25, $pm40, $pm100, $rh, $temp, $VOC, $NOx" advanced=true
     //% draggableParameters=variable
@@ -354,11 +355,13 @@ namespace sen55 {
     /**
      * On all valid gas data ("non-error" context).
      * Only enters the context if all basic data values are valid:
-     *      rh is relative humidity
-     *      temp is temperature
-     *      VOC is the VOC index
-     *      NOx is the NOx index
-     */    //% block="on valid sensor gas values $rh, $temp, $VOC, $NOx" advanced=true
+     *      rh is relative humidity [0-100]
+     *      temp is temperature in Celsius
+     *      VOC is the VOC index ([1-500]). See https://sensirion.com/media/documents/02232963/6294E043/Info_Note_VOC_Index.pdf.
+     *      NOx is the NOx index ([1-500]). See https://sensirion.com/media/documents/9F289B95/6294DFFC/Info_Note_NOx_Index.pdf.
+     * For details on the VOC and NOx indices see https://sensirion.com/media/documents/5FE8673C/61E96F50/Sensirion_Gas_Sensors_Datasheet_SGP41.pdf#page=10 and 
+     */    
+    //% block="on valid sensor gas values $rh, $temp, $VOC, $NOx" advanced=true
     //% draggableParameters=variable
     //% handlerStatement=1
     //% weight=710

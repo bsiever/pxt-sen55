@@ -2,7 +2,7 @@
 
 This extension supports the [Sensirion SEN55](https://sensirion.com/products/catalog/SEN55/) Environmental Sensor Node, which includes sensors for:
 
-* Airborne Particulate matter (1.0, 2.5, 4.0, and 10.0 µg/m³)
+* Airborne Particulate Matter (Particle sizes of up to 1.0, 2.5, 4.0, and 10.0 µm)
 * Volatile Organic Compounds (VOCs)
 * Nitrogen Oxides (NOx)
 * Relative Humidity
@@ -11,36 +11,86 @@ This extension supports the [Sensirion SEN55](https://sensirion.com/products/cat
 Sensor details and data sheets can be found at: [https://sensirion.com/products/catalog/SEN55/](https://sensirion.com/products/catalog/SEN55/)
 
 
+# Start Measurements
 
+```sig
+sen55.startMeasurements(measurementType?: Sen55SensorMode) : void
+```
+
+Start making measurements.  If no argument is provided, it defaults to including measurements of particles.  Measurements that include particles (no argument or `Sen55SensorMode.WithParticleMass`) use more power than measurements of gasses only (`Sen55SensorMode.WithoutParticleMass`).
+
+# Mass of particles by particle size
+
+```sig
+sen55.particleMass(size?: Sen55ParticleMasses) : number
+```
+
+Get the mass of particles of size 0.3µm up to the given size per volume (µg/m³).
+
+Measurements must be started via `sen55.startMeasurements(Sen55SensorMode.WithParticleMass)` prior to use.
+
+# Count of particles by particle size
+
+```sig
+sen55.particleCount(size?: Sen55ParticleCounts) : number
+```
+
+Get the count of particles of size 0.3µm up to the given size per volume (#/cm³).
+
+Measurements must be started via `sen55.startMeasurements(Sen55SensorMode.WithParticleMass)` prior to use.
+
+# VOC Index 
+
+```sig
+sen55.VOCIndex(): number
+```
+
+Get the VOC index [1-500]. See https://sensirion.com/media/documents/02232963/6294E043/Info_Note_VOC_Index.pdf .
+
+
+# NOx Index 
+
+```sig
+sen55.NOxIndex(): number
+```
+
+Get the NOx index [1-500]. See https://sensirion.com/media/documents/9F289B95/6294DFFC/Info_Note_NOx_Index.pdf .
+
+# Temperature 
+
+```sig
+sen55.temperature(): number
+```
+
+Get the temperature in Celsius.  The temperature value will be compensated based on Sensirion's STAR algorithm.
+
+# Humidity
+
+```sig
+sen55.humidity(): number
+```
+
+Get the relative humidity (0-100%).  The humidity value will be compensated based on Sensirion's STAR algorithm.
+
+
+# Stop Measurements
+
+```sig
+sen55.stopMeasurements() : void
+```
+
+Stop making measurements and return to low-power idle mode.
+
+# On Error 
+
+```sig
+sen55.onError(errCallback: (reason: string) => void) : void
+```
+
+Repond to any errors.  `reason` will be a description of the error. 
 
 
 <!-- This extension expands the behaviors supported by the A & B buttons.  It supports (mutually exclusive) detection of a single click of a button, a double click of a button, or holding a button down. 
-
-
-
-# Single Button Clicks
-
-```sig
-buttonClicks.onButtonSingleClicked(button: buttonClicks.AorB, body: Action) : void
-``` 
-
-Set the actions to do on a single click. 
-
-# Double Button Clicks
-
-```sig
-buttonClicks.onButtonDoubleClicked(button: buttonClicks.AorB, body: Action) : void
-``` 
-
-Set the actions to do on a double click. 
-
-# Holding Buttons (Long Clicks)
-
-```sig
-buttonClicks.onButtonHeld(button: buttonClicks.AorB, body: Action) : void
-``` 
-
-Set the actions to do while the button is held down.
 
 ### ~alert
 
