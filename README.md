@@ -1,3 +1,9 @@
+
+
+```package
+sen55=github:bsiever/pxt-sen55
+```
+
 # SEN55 Air Quality Sensor
 
 This extension supports the [Sensirion SEN55](https://sensirion.com/products/catalog/SEN55/) Environmental Sensor Node, which includes sensors for:
@@ -205,24 +211,26 @@ Fan will automatically be cleaned if the device is continuously running without 
 
 # Example
 
-The following program will show ...
+The following program will get air quality measures every second and relay them to the serial console / logger.
+```block
 
-<!-- ```block
+sen55.onError(function (reason) {
+    serial.writeLine(reason)
+})
 
-buttonClicks.onButtonSingleClicked(buttonClicks.AorB.B, function () {
-    serial.writeLine("B single")
-    basic.showLeds(`
-        . . . . #
-        . . . . .
-        . . . . .
-        . . . . .
-        # . . . .
-        `)
-    showClear()
+basic.showIcon(IconNames.Heart)
+sen55.startMeasurements()
+
+loops.everyInterval(1000, function () {
+    serial.writeValue("pm10", sen55.particleMass(Sen55ParticleMasses.PM100))
+    serial.writeValue("voc", sen55.VOCIndex())
+    serial.writeValue("NOx", sen55.NOxIndex())
+    serial.writeValue("temp", sen55.temperature())
+    serial.writeValue("rh", sen55.humidity())
 })
 
 
-``` -->
+``` 
 
 
 # Acknowledgements 
