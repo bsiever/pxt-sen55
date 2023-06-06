@@ -214,12 +214,12 @@ Fan will automatically be cleaned if the device is continuously running without 
 The following program will get air quality measures every second and relay them to the serial console / logger.
 ```block
 
+basic.showIcon(IconNames.Heart)
+sen55.startMeasurements()
+
 sen55.onError(function (reason) {
     serial.writeLine(reason)
 })
-
-basic.showIcon(IconNames.Heart)
-sen55.startMeasurements()
 
 loops.everyInterval(1000, function () {
     serial.writeValue("pm10", sen55.particleMass(Sen55ParticleMasses.PM100))
