@@ -11,6 +11,14 @@ This extension supports the [Sensirion SEN55](https://sensirion.com/products/cat
 Sensor details and data sheets can be found at: [https://sensirion.com/products/catalog/SEN55/](https://sensirion.com/products/catalog/SEN55/)
 
 
+### ~alert
+
+# Errors on Numeric Values
+
+Errors most reading numeric values (sensor values, not firmware version) or reported as `NaN` ("Not a Number").  `Number.isNaN()` can be used to determine if the returned value is not valid (is `NaN`).
+### ~
+
+
 # Start Measurements
 
 ```sig
@@ -25,9 +33,9 @@ Start making measurements.  If no argument is provided, it defaults to including
 sen55.particleMass(size?: Sen55ParticleMasses) : number
 ```
 
-Get the mass of particles of size 0.3µm up to the given size per volume (µg/m³).
+Get the mass of particles of size 0.3µm up to the given size per volume (µg/m³). Returns `NaN` on error.
 
-Measurements must be started via `sen55.startMeasurements(Sen55SensorMode.WithParticleMass)` prior to use.
+Measurements must be started via `sen55.startMeasurements(Sen55SensorMode.WithParticleMass)` prior to use.  
 
 # Count of particles by particle size
 
@@ -37,7 +45,7 @@ sen55.particleCount(size?: Sen55ParticleCounts) : number
 
 Get the count of particles of size 0.3µm up to the given size per volume (#/cm³).
 
-Measurements must be started via `sen55.startMeasurements(Sen55SensorMode.WithParticleMass)` prior to use.
+Measurements must be started via `sen55.startMeasurements(Sen55SensorMode.WithParticleMass)` prior to use.  Returns `NaN` on error.
 
 # VOC Index 
 
@@ -45,7 +53,7 @@ Measurements must be started via `sen55.startMeasurements(Sen55SensorMode.WithPa
 sen55.VOCIndex(): number
 ```
 
-Get the VOC index [1-500]. See https://sensirion.com/media/documents/02232963/6294E043/Info_Note_VOC_Index.pdf .
+Get the VOC index [1-500]. See https://sensirion.com/media/documents/02232963/6294E043/Info_Note_VOC_Index.pdf .  Returns `NaN` on error.
 
 
 # NOx Index 
@@ -54,7 +62,7 @@ Get the VOC index [1-500]. See https://sensirion.com/media/documents/02232963/62
 sen55.NOxIndex(): number
 ```
 
-Get the NOx index [1-500]. See https://sensirion.com/media/documents/9F289B95/6294DFFC/Info_Note_NOx_Index.pdf .
+Get the NOx index [1-500]. See https://sensirion.com/media/documents/9F289B95/6294DFFC/Info_Note_NOx_Index.pdf .  Returns `NaN` on error.
 
 # Temperature 
 
@@ -70,8 +78,7 @@ Get the temperature in Celsius.  The temperature value will be compensated based
 sen55.humidity(): number
 ```
 
-Get the relative humidity (0-100%).  The humidity value will be compensated based on Sensirion's STAR algorithm.
-
+Get the relative humidity (0-100%).  The humidity value will be compensated based on Sensirion's STAR algorithm.  Returns `NaN` on error.
 
 # Stop Measurements
 
@@ -87,19 +94,116 @@ Stop making measurements and return to low-power idle mode.
 sen55.onError(errCallback: (reason: string) => void) : void
 ```
 
-Repond to any errors.  `reason` will be a description of the error. 
+Respond to any errors.  `reason` will be a description of the error. 
+
+# Typical Particle Size
+
+```sig
+sen55.typicalParticleSize(): number
+```
+
+Get the typical particle size in µm.  Returns `NaN` on error.
+
+# Typical Particle Size
+
+```sig
+sen55.typicalParticleSize(): number
+```
+
+Get the typical particle size in µm.  Returns `NaN` on error.
+
+# Device Status
+
+```sig
+sen55.deviceStatus(): number
+```
+
+Get the device status. Returns a number with bit masks given in `sen55.StatusMasks`. Returns -1 on error.
+
+# Raw VOC
+
+```sig
+sen55.rawVOC(): number
+```
+
+Get the raw VOC value (not an index).  The raw value is proportional to the logarithm of the corresponding sensor resistance. Returns `NaN` on error. See https://sensirion.com/media/documents/5FE8673C/61E96F50/Sensirion_Gas_Sensors_Datasheet_SGP41.pdf .
 
 
-<!-- This extension expands the behaviors supported by the A & B buttons.  It supports (mutually exclusive) detection of a single click of a button, a double click of a button, or holding a button down. 
+# Raw NOx
 
-### ~alert
+```sig
+sen55.rawNOx(): number
+```
 
-# Holding a button down 
+Get the raw NOx value (not an index).  The raw value is proportional to the logarithm of the corresponding sensor resistance. Returns `NaN` on error. See  https://sensirion.com/media/documents/5FE8673C/61E96F50/Sensirion_Gas_Sensors_Datasheet_SGP41.pdf .
 
-Holding the button will cause this event to happen repeated while the button is held.  
- -->
+# Raw Temperature
 
-# Example 
+```sig
+sen55.rawTemperature(): number
+```
+
+Get the raw temperature value °C" (not compensated). Returns `NaN` on error.
+
+# Raw Humidity
+
+```sig
+sen55.rawHumidity(): number
+```
+
+Get the raw relative humidity" (not compensated). Returns `NaN` on error.
+
+# Product Name
+
+```sig
+sen55.productName(): string
+```
+
+Get the product name. Returns an empty string on error.
+
+# Serial Number
+
+```sig
+sen55.serialNumber(): string
+```
+
+Get the Serial number. Returns an empty string on error.
+
+# Firmware Version
+
+```sig
+sen55.firmwareVersion(): number
+```
+
+Get the firmware version.  Returns -1 on error.
+
+# Reset
+
+```sig
+sen55.reset(): void
+```
+
+Reset the sensor (back to startup conditions; Not performing measurements).
+
+# Clear Device Status
+
+```sig
+sen55.clearDeviceStatus(): void
+```
+
+Clear the device status.
+
+# Start Fan Cleaning
+
+```sig
+sen55.startFanCleaning(): void
+```
+
+Start cleaning the fan. Takes ~10s and all values are invalid while cleaning. 
+
+Fan will automatically be cleaned if the device is continuously running without reset/restart for 1 week (168 hours).  Ideally fan should be cleaned after 168 hours of use, even if not continuously in use.
+
+# Example
 
 The following program will show ...
 
