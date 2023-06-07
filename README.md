@@ -39,7 +39,7 @@ All three are available in this Amazon kit: https://www.amazon.com/HJ-Garden-Ele
 
 Using parts like those from the Amazon kit, there are 9 major steps to wiring:
 
-1. Configure the power supply to provide 5v to the bottom rails on the bread board. 
+1. Plug the power supply into the bread board and configure the jumper so it provides 5v to the bottom rails on the bread board. 
 2. Plug the micro:bit breakout board into the breadboard 
 3. Connect a jumper wire between the ground on the bottom rail and the micro:bit's GND on the breakout board. 
 4. Plug the cable into the SEN55 
@@ -50,7 +50,6 @@ Using parts like those from the Amazon kit, there are 9 major steps to wiring:
    4. Pin 4 (black wire in the picture) to the "SCL" pin from the micro:bit (Micro:bit's pin 19).
    5. Pin 5 (red wire in the picture) to the "-" rail from the 5V power supply.
    6. Pin 6 (brown wire in the picure) is not connected.  In the picure it is plugged into an arbitraary row that is not connected to anything else to ensure it is out of the way.
-
 
 ### ~alert
 
