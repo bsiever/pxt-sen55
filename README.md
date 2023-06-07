@@ -51,6 +51,8 @@ Using parts like those from the Amazon kit, there are 9 major steps to wiring:
    5. Pin 5 (red wire in the picture) to the "-" rail from the 5V power supply.
    6. Pin 6 (brown wire in the picure) is not connected.  In the picure it is plugged into an arbitraary row that is not connected to anything else to ensure it is out of the way.
 
+![](https://raw.githubusercontent.com/bsiever/pxt-sen55/master/wiring/sen55_wiring.jpg)
+
 ### ~alert
 
 # Errors on Numeric Values
