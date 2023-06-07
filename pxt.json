@@ -1,6 +1,6 @@
 {
     "name": "pxt-sen55",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "Support for Sensirion SEN55 Air Quality Sensor",
     "license": "MIT",
     "dependencies": {
