@@ -16,6 +16,41 @@ This extension supports the [Sensirion SEN55](https://sensirion.com/products/cat
 
 Sensor details and data sheets can be found at: [https://sensirion.com/products/catalog/SEN55/](https://sensirion.com/products/catalog/SEN55/)
 
+# Parts & Wiring
+
+## Parts 
+
+Almost all the parts necessary for this project can be purchased from DigiKey:
+
+1. Sensirion SEN55: https://www.digikey.com/en/products/detail/sensirion-ag/SEN55-SDN-T/16342756
+2. Cable to connect SEN55 to a breadboard: https://www.digikey.com/en/products/detail/sparkfun-electronics/CAB-18079/14322699
+3. A MicroBit Breakout Board: https://www.digikey.com/en/products/detail/sparkfun-electronics/BOB-16446/14557733
+
+There are also a few parts that are available in a variety of kits and from other sources.  Below are variations that are available via Amazon:
+
+
+1. A breadboard (only one needed)
+2. Jumper wires (only a single wire needed)
+3. A 5v power supply.  
+
+All three are available in this Amazon kit: https://www.amazon.com/HJ-Garden-Electronic-Component-Breadboard/dp/B077SFGWYP/ 
+
+## Wiring
+
+Using parts like those from the Amazon kit, there are 9 major steps to wiring:
+
+1. Configure the power supply to provide 5v to the bottom rails on the bread board. 
+2. Plug the micro:bit breakout board into the breadboard 
+3. Connect a jumper wire between the ground on the bottom rail and the micro:bit's GND on the breakout board. 
+4. Plug the cable into the SEN55 
+5. Connect the SEN55's pins:
+   1. Pin 1 (green wire in the picture) to the "+" rail from the 5V power supply. 
+   2. Pin 2 (blue wire in the picture) to the "-" rail from the 5V power supply. 
+   3. Pin 3 (yellow wire in the picture) to the "SDA" pin from the micro:bit (Micro:bit's pin 20).
+   4. Pin 4 (black wire in the picture) to the "SCL" pin from the micro:bit (Micro:bit's pin 19).
+   5. Pin 5 (red wire in the picture) to the "-" rail from the 5V power supply.
+   6. Pin 6 (brown wire in the picure) is not connected.  In the picure it is plugged into an arbitraary row that is not connected to anything else to ensure it is out of the way.
+
 
 ### ~alert
 

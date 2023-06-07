@@ -31,7 +31,10 @@ enum Sen55ParticleCounts {
     PC100
 }
 
-//% color=#149ef5
+/**
+ * Support for the Sensirion SEN55 Environmental Sensor Node
+ */
+//% color=#398BB4
 //% icon="\uf0c2"
 //% block="SEN55"
 namespace sen55 {
@@ -85,7 +88,6 @@ namespace sen55 {
     //% measurementType.defl=Sen55SensorMode.WithParticulateMatter
     //% weight=1000
     export function startMeasurements(measurementType?: Sen55SensorMode) {
-        serial.writeLine("Starting measurements..." + isNaN(measurementType) ? "undefined" : measurementType.toString());
         _startMeasurements(isNaN(measurementType) ? true : measurementType == Sen55SensorMode.WithParticleMass);
     }
 
@@ -266,7 +268,7 @@ namespace sen55 {
     }
 
     /**
-     * Get the raw temperature value °C" (not compensated). Returns NaN on error.
+     * Get the raw temperature value °C (not compensated). Returns NaN on error.
      * Measurements must be started.
      */
     //% block="raw temperature °C" advanced=true
@@ -277,7 +279,7 @@ namespace sen55 {
     }
 
     /**
-     * Get the raw relative humidity value °C" (not compensated). Returns NaN on error.
+     * Get the raw relative humidity value (not compensated). Returns NaN on error.
      * Measurements must be started.
      */
     //% block="raw humidity (\\% relative)" advanced=true

@@ -413,7 +413,7 @@ namespace sen55 {
     }
 
     //% 
-    void clearStatus() {
+    void clearDeviceStatus() {
         bool commandStatus = sendCommand(0xD210, 20);
         if(commandStatus == false) {
             sen55_error("Device Status Clear Error");
