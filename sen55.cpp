@@ -64,7 +64,7 @@ namespace sen55 {
     static int16_t  _voci;     // TODO:Confirm int16?
     static int16_t  _noxi;     // TODO:  Confirm int16?
     static uint16_t _rawRh;
-    static uint16_t _rawTemp;  // TODO: Confirm uint16?
+    static int16_t _rawTemp; 
     static uint16_t _rawVoc;
     static uint16_t _rawNox;
 
@@ -81,7 +81,7 @@ namespace sen55 {
         _voci = INT_INVALID;
         _noxi = INT_INVALID;
         _rawRh  = UINT_INVALID;
-        _rawTemp= UINT_INVALID;
+        _rawTemp= INT_INVALID;
         _rawVoc = UINT_INVALID;
         _rawNox = UINT_INVALID;
 
@@ -249,7 +249,7 @@ namespace sen55 {
         _noxi   = (int16_t)(data[21]<<8 | data[22]);
 
         _rawRh = (uint16_t)(rawData[0]<<8 | rawData[1]);
-        _rawTemp = (uint16_t)(rawData[3]<<8 | rawData[4]);
+        _rawTemp = (int16_t)(rawData[3]<<8 | rawData[4]);
         _rawVoc = (uint16_t)(rawData[6]<<8 | rawData[7]);
         _rawNox = (uint16_t)(rawData[9]<<8 | rawData[10]);
 
@@ -322,7 +322,7 @@ namespace sen55 {
     //% 
     float rawTemperature() {
         readIfStale();
-        return _rawTemp == UINT_INVALID ? NAN : roundP01(_rawTemp/200.0f);
+        return _rawTemp == INT_INVALID ? NAN : roundP01(_rawTemp/200.0f);
     }
 
     //%
