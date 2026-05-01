@@ -203,7 +203,7 @@ namespace sen55 {
      * Set a handler for errors 
      * @param errCallback The error handler 
      */
-    //% blockId="error" block="SEN55 error"
+    //% block="SEN55 error"
     //% draggableParameters="reporter" weight=0
     //% weight=100
     export function onError(errCallback: (reason: string) => void) {
